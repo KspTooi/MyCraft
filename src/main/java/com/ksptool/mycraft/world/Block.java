@@ -1,0 +1,108 @@
+package com.ksptool.mycraft.world;
+
+import com.ksptool.mycraft.world.properties.BlockProperty;
+
+import java.util.*;
+
+public abstract class Block {
+    private final String namespacedID;
+    private final float durability;
+    private final int miningLevel;
+    private final List<BlockProperty<?>> properties;
+    private BlockState defaultState;
+    private List<BlockState> allStates;
+
+    public Block(String namespacedID, float durability, int miningLevel) {
+        this.namespacedID = Objects.requireNonNull(namespacedID);
+        this.durability = durability;
+        this.miningLevel = miningLevel;
+        this.properties = new ArrayList<>();
+        defineProperties();
+        generateStates();
+    }
+
+    protected abstract void defineProperties();
+
+    protected <T extends Comparable<T>> void addProperty(BlockProperty<T> property) {
+        properties.add(property);
+    }
+
+    public String getNamespacedID() {
+        return namespacedID;
+    }
+
+    public float getDurability() {
+        return durability;
+    }
+
+    public int getMiningLevel() {
+        return miningLevel;
+    }
+
+    public List<BlockProperty<?>> getProperties() {
+        return Collections.unmodifiableList(properties);
+    }
+
+    public BlockState getDefaultState() {
+        return defaultState;
+    }
+
+    public List<BlockState> getAllStates() {
+        return Collections.unmodifiableList(allStates);
+    }
+
+    public boolean isSolid() {
+        return true;
+    }
+
+    public abstract String getTextureName(int face, BlockState state);
+
+    private void generateStates() {
+        if (properties.isEmpty()) {
+            Map<BlockProperty<?>, Comparable<?>> emptyProps = new HashMap<>();
+            defaultState = new BlockState(this, emptyProps);
+            allStates = Collections.singletonList(defaultState);
+            return;
+        }
+
+        List<Map<BlockProperty<?>, Comparable<?>>> combinations = generateCombinations(0, new HashMap<>());
+        allStates = new ArrayList<>();
+        
+        for (Map<BlockProperty<?>, Comparable<?>> props : combinations) {
+            allStates.add(new BlockState(this, props));
+        }
+        
+        defaultState = allStates.get(0);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Map<BlockProperty<?>, Comparable<?>>> generateCombinations(
+            int index, 
+            Map<BlockProperty<?>, Comparable<?>> current) {
+        
+        if (index >= properties.size()) {
+            return Collections.singletonList(new HashMap<>(current));
+        }
+
+        List<Map<BlockProperty<?>, Comparable<?>>> results = new ArrayList<>();
+        BlockProperty<?> property = properties.get(index);
+        
+        for (Comparable<?> value : property.getAllowedValues()) {
+            Map<BlockProperty<?>, Comparable<?>> newCurrent = new HashMap<>(current);
+            newCurrent.put(property, value);
+            results.addAll(generateCombinations(index + 1, newCurrent));
+        }
+        
+        return results;
+    }
+
+    public static void registerBlocks() {
+        Registry registry = Registry.getInstance();
+        registry.register(new com.ksptool.mycraft.world.blocks.AirBlock());
+        registry.register(new com.ksptool.mycraft.world.blocks.GrassBlock());
+        registry.register(new com.ksptool.mycraft.world.blocks.DirtBlock());
+        registry.register(new com.ksptool.mycraft.world.blocks.StoneBlock());
+        registry.register(new com.ksptool.mycraft.world.blocks.WoodBlock());
+        registry.register(new com.ksptool.mycraft.world.blocks.LeavesBlock());
+    }
+}

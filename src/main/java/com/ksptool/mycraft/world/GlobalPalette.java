@@ -1,0 +1,102 @@
+package com.ksptool.mycraft.world;
+
+import java.util.*;
+
+public class GlobalPalette {
+    private static final GlobalPalette INSTANCE = new GlobalPalette();
+    private final List<BlockState> stateList;
+    private final Map<BlockState, Integer> stateToId;
+    private boolean baked = false;
+
+    private GlobalPalette() {
+        this.stateList = new ArrayList<>();
+        this.stateToId = new HashMap<>();
+    }
+
+    public static GlobalPalette getInstance() {
+        return INSTANCE;
+    }
+
+    public void bake() {
+        if (baked) {
+            return;
+        }
+
+        Registry registry = Registry.getInstance();
+        Map<String, Block> blocks = registry.getAllBlocks();
+
+        Block airBlock = registry.get("mycraft:air");
+        if (airBlock == null) {
+            throw new IllegalStateException("Air block must be registered before baking palette!");
+        }
+
+        List<BlockState> allStates = new ArrayList<>();
+
+        for (Block block : blocks.values()) {
+            allStates.addAll(block.getAllStates());
+        }
+
+        List<BlockState> sortedStates = new ArrayList<>();
+        List<BlockState> airStates = new ArrayList<>();
+        List<BlockState> otherStates = new ArrayList<>();
+        
+        for (BlockState state : allStates) {
+            if (state.getBlock() == airBlock) {
+                airStates.add(state);
+            } else {
+                otherStates.add(state);
+            }
+        }
+        
+        Collections.sort(otherStates, (a, b) -> 
+            a.getBlock().getNamespacedID().compareTo(b.getBlock().getNamespacedID()));
+        
+        sortedStates.addAll(airStates);
+        sortedStates.addAll(otherStates);
+
+        int id = 0;
+        for (BlockState state : sortedStates) {
+            stateList.add(state);
+            stateToId.put(state, id);
+            id++;
+        }
+
+        baked = true;
+    }
+
+    public int getStateId(BlockState state) {
+        if (!baked) {
+            throw new IllegalStateException("Palette must be baked before use!");
+        }
+        Integer id = stateToId.get(state);
+        if (id == null) {
+            throw new IllegalArgumentException("BlockState not found in palette: " + state);
+        }
+        return id;
+    }
+
+    public BlockState getState(int id) {
+        if (!baked) {
+            throw new IllegalStateException("Palette must be baked before use!");
+        }
+        if (id < 0 || id >= stateList.size()) {
+            return stateList.get(0);
+        }
+        return stateList.get(id);
+    }
+
+    public int getStateCount() {
+        return stateList.size();
+    }
+
+    public boolean isBaked() {
+        return baked;
+    }
+
+    public void clear() {
+        stateList.clear();
+        stateToId.clear();
+        baked = false;
+    }
+}
+
