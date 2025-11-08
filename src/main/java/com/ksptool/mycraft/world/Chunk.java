@@ -313,7 +313,6 @@ public class Chunk {
 
     public void render() {
         if (mesh == null) {
-            System.out.println("Chunk [" + chunkX + "," + chunkZ + "]: mesh is null!");
             return;
         }
         mesh.render();

@@ -16,18 +16,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class World {
-    private Map<String, Chunk> chunks;
+    private Map<Long, Chunk> chunks;
     private static final int RENDER_DISTANCE = 8;
     private int textureId;
     private float timeOfDay = 0.5f;
     private float timeSpeed = 0.0001f;
     
     private final BlockingQueue<ChunkGenerationTask> generationQueue;
-    private final Map<String, ChunkGenerationTask> pendingChunks;
+    private final Map<Long, ChunkGenerationTask> pendingChunks;
     private WorldGenerator worldGenerator;
     private ChunkMeshGenerator chunkMeshGenerator;
     
     private final List<Entity> entities;
+
+    private static long getChunkKey(int x, int z) {
+        return ((long)x << 32) | (z & 0xFFFFFFFFL);
+    }
 
     public World() {
         this.chunks = new ConcurrentHashMap<>();
@@ -37,12 +41,10 @@ public class World {
     }
 
     public void init() {
-        System.out.println("Initializing world...");
         loadTexture();
         chunkMeshGenerator = new ChunkMeshGenerator(this);
         worldGenerator = new WorldGenerator(this, generationQueue);
         worldGenerator.start();
-        System.out.println("World initialized");
     }
 
     private void loadTexture() {
@@ -71,8 +73,6 @@ public class World {
     }
 
     public void update(Vector3f playerPosition) {
-        long updateStartTime = System.nanoTime();
-        
         timeOfDay += timeSpeed;
         if (timeOfDay > 1.0f) {
             timeOfDay -= 1.0f;
@@ -83,7 +83,7 @@ public class World {
 
         for (int x = playerChunkX - RENDER_DISTANCE; x <= playerChunkX + RENDER_DISTANCE; x++) {
             for (int z = playerChunkZ - RENDER_DISTANCE; z <= playerChunkZ + RENDER_DISTANCE; z++) {
-                String key = x + "," + z;
+                long key = getChunkKey(x, z);
                 if (!chunks.containsKey(key) && !pendingChunks.containsKey(key)) {
                     ChunkGenerationTask task = new ChunkGenerationTask(x, z);
                     pendingChunks.put(key, task);
@@ -94,7 +94,7 @@ public class World {
 
         for (int x = playerChunkX - RENDER_DISTANCE; x <= playerChunkX + RENDER_DISTANCE; x++) {
             for (int z = playerChunkZ - RENDER_DISTANCE; z <= playerChunkZ + RENDER_DISTANCE; z++) {
-                String key = x + "," + z;
+                long key = getChunkKey(x, z);
                 ChunkGenerationTask task = pendingChunks.get(key);
                 if (task != null && task.isDataGenerated() && task.getChunk() != null) {
                     Chunk chunk = task.getChunk();
@@ -109,27 +109,18 @@ public class World {
             }
         }
         
-        
-
         chunks.entrySet().removeIf(entry -> {
-            String[] parts = entry.getKey().split(",");
-            int chunkX = Integer.parseInt(parts[0]);
-            int chunkZ = Integer.parseInt(parts[1]);
+            long key = entry.getKey();
+            int chunkX = (int)(key >> 32);
+            int chunkZ = (int)(key & 0xFFFFFFFFL);
             int distance = Math.max(Math.abs(chunkX - playerChunkX), Math.abs(chunkZ - playerChunkZ));
             if (distance > RENDER_DISTANCE + 5) {
                 entry.getValue().cleanup();
-                pendingChunks.remove(entry.getKey());
+                pendingChunks.remove(key);
                 return true;
             }
             return false;
         });
-        
-        
-
-        long updateElapsed = System.nanoTime() - updateStartTime;
-        if (updateElapsed > 10_000_000) {
-            System.out.println("World.update took " + (updateElapsed / 1_000_000) + "ms");
-        }
     }
 
     public void generateChunkData(Chunk chunk) {
@@ -171,7 +162,7 @@ public class World {
     }
     
     public void generateChunkSynchronously(int chunkX, int chunkZ) {
-        String key = chunkX + "," + chunkZ;
+        long key = getChunkKey(chunkX, chunkZ);
         if (chunks.containsKey(key)) {
             return;
         }
@@ -184,7 +175,6 @@ public class World {
             chunk.uploadToGPU(result);
         }
         chunks.put(key, chunk);
-        System.out.println("Synchronously generated chunk [" + chunkX + "," + chunkZ + "]");
     }
     
     public int getHeightAt(int worldX, int worldZ) {
@@ -194,39 +184,17 @@ public class World {
 
     public void render(ShaderProgram shader) {
         if (chunks.isEmpty()) {
-            System.out.println("World.render: No chunks to render");
             return;
         }
-        
-        int chunksWithMesh = 0;
-        for (Chunk chunk : chunks.values()) {
-            if (chunk != null && chunk.hasMesh()) {
-                chunksWithMesh++;
-            }
-        }
-        
-        System.out.println("World.render: Rendering " + chunksWithMesh + " chunks (total: " + chunks.size() + ")");
         
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
         shader.setUniform("textureSampler", 0);
-        
-        if (textureId == 0) {
-            System.err.println("WARNING: Texture ID is 0!");
-        }
 
-        int rendered = 0;
         for (Chunk chunk : chunks.values()) {
             if (chunk != null && chunk.hasMesh()) {
                 chunk.render();
-                rendered++;
             }
-        }
-        
-        System.out.println("World.render: Actually rendered " + rendered + " chunks");
-        
-        if (rendered == 0) {
-            System.out.println("WARNING: No chunks were rendered despite " + chunks.size() + " chunks loaded!");
         }
     }
     
@@ -237,7 +205,7 @@ public class World {
     public int getBlockState(int x, int y, int z) {
         int chunkX = (int) Math.floor((float) x / Chunk.CHUNK_SIZE);
         int chunkZ = (int) Math.floor((float) z / Chunk.CHUNK_SIZE);
-        String key = chunkX + "," + chunkZ;
+        long key = getChunkKey(chunkX, chunkZ);
         Chunk chunk = chunks.get(key);
         if (chunk == null) {
             return 0;
@@ -250,7 +218,7 @@ public class World {
     public void setBlockState(int x, int y, int z, int stateId) {
         int chunkX = (int) Math.floor((float) x / Chunk.CHUNK_SIZE);
         int chunkZ = (int) Math.floor((float) z / Chunk.CHUNK_SIZE);
-        String key = chunkX + "," + chunkZ;
+        long key = getChunkKey(chunkX, chunkZ);
         Chunk chunk = chunks.get(key);
         if (chunk == null) {
             return;
@@ -266,7 +234,7 @@ public class World {
 
         int[][] neighborOffsets = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
         for (int[] offset : neighborOffsets) {
-            String neighborKey = (chunkX + offset[0]) + "," + (chunkZ + offset[1]);
+            long neighborKey = getChunkKey(chunkX + offset[0], chunkZ + offset[1]);
             Chunk neighborChunk = chunks.get(neighborKey);
             if (neighborChunk != null) {
                 if (neighborChunk.getState() == Chunk.ChunkState.READY) {
@@ -335,7 +303,7 @@ public class World {
     }
 
     public List<Entity> getEntities() {
-        return new ArrayList<>(entities);
+        return entities;
     }
 
     public void cleanup() {

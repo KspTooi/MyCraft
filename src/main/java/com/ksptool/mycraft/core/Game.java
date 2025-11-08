@@ -36,8 +36,6 @@ public class Game {
         int playerChunkX = (int) Math.floor(initialX / com.ksptool.mycraft.world.Chunk.CHUNK_SIZE);
         int playerChunkZ = (int) Math.floor(initialZ / com.ksptool.mycraft.world.Chunk.CHUNK_SIZE);
         
-        System.out.println("Pre-generating chunks around player spawn at chunk [" + playerChunkX + "," + playerChunkZ + "]");
-        
         for (int x = playerChunkX - 2; x <= playerChunkX + 2; x++) {
             for (int z = playerChunkZ - 2; z <= playerChunkZ + 2; z++) {
                 world.generateChunkSynchronously(x, z);
@@ -46,8 +44,6 @@ public class Game {
         
         int groundHeight = world.getHeightAt((int) initialX, (int) initialZ);
         float initialY = groundHeight + 1.0f;
-        
-        System.out.println("Player spawn height calculated: " + initialY + " (ground at " + groundHeight + ")");
         
         player = new Player(world);
         player.getPosition().set(initialX, initialY, initialZ);
@@ -86,7 +82,6 @@ public class Game {
 
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
-                System.out.println("FPS: " + frames + " UPS: " + updates);
                 frames = 0;
                 updates = 0;
             }
@@ -144,10 +139,6 @@ public class Game {
         long meshUploadTime = System.nanoTime() - meshUploadStart;
         
         long totalUpdateTime = System.nanoTime() - updateStartTime;
-        
-        if (totalUpdateTime > 16_666_666) {
-            System.out.println("Update took " + (totalUpdateTime / 1_000_000) + "ms (Entities: " + (entityUpdateTime / 1_000_000) + "ms, Player: " + (playerUpdateTime / 1_000_000) + "ms, World: " + (worldUpdateTime / 1_000_000) + "ms, MeshUpload: " + (meshUploadTime / 1_000_000) + "ms)");
-        }
     }
 
     private void render() {
@@ -160,11 +151,6 @@ public class Game {
         renderer.clear();
         renderer.render(world, player, window.getWidth(), window.getHeight());
         window.update();
-        
-        long renderTime = System.nanoTime() - renderStartTime;
-        if (renderTime > 16_666_666) {
-            System.out.println("Render took " + (renderTime / 1_000_000) + "ms");
-        }
     }
 
     private void cleanup() {
