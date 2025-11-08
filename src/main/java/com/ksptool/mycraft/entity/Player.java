@@ -15,7 +15,7 @@ import org.joml.Vector3f;
 public class Player extends LivingEntity {
     private Camera camera;
     private Inventory inventory;
-    private float speed = 5.0f;
+    private float speed = 100f;
     private float mouseSensitivity = 0.1f;
 
     public Player(World world) {

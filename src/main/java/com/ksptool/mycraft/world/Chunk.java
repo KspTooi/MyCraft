@@ -10,11 +10,20 @@ public class Chunk {
     public static final int CHUNK_SIZE = 16;
     public static final int CHUNK_HEIGHT = 256;
 
+    public enum ChunkState {
+        NEW,
+        DATA_LOADED,
+        AWAITING_MESH,
+        READY_TO_UPLOAD,
+        READY
+    }
+
     private int[][][] blockStates;
     private int chunkX;
     private int chunkZ;
     private Mesh mesh;
     private boolean needsUpdate;
+    private ChunkState state;
     private static final int AIR_STATE_ID = 0;
 
     public Chunk(int chunkX, int chunkZ) {
@@ -22,6 +31,7 @@ public class Chunk {
         this.chunkZ = chunkZ;
         this.blockStates = new int[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
         this.needsUpdate = true;
+        this.state = ChunkState.NEW;
     }
 
     public void setBlockState(int x, int y, int z, int stateId) {
@@ -38,9 +48,9 @@ public class Chunk {
         return AIR_STATE_ID;
     }
 
-    public void generateMesh(World world) {
+    public MeshGenerationResult calculateMeshData(World world) {
         if (!needsUpdate) {
-            return;
+            return null;
         }
 
         List<Float> vertices = new ArrayList<>();
@@ -94,36 +104,46 @@ public class Chunk {
             }
         }
 
+        if (vertices.isEmpty()) {
+            needsUpdate = false;
+            return new MeshGenerationResult(this, new float[0], new float[0], new float[0], new int[0]);
+        }
+
+        float[] verticesArray = new float[vertices.size()];
+        for (int i = 0; i < vertices.size(); i++) {
+            verticesArray[i] = vertices.get(i);
+        }
+
+        float[] texCoordsArray = new float[texCoords.size()];
+        for (int i = 0; i < texCoords.size(); i++) {
+            texCoordsArray[i] = texCoords.get(i);
+        }
+
+        float[] tintsArray = new float[tints.size()];
+        for (int i = 0; i < tints.size(); i++) {
+            tintsArray[i] = tints.get(i);
+        }
+
+        int[] indicesArray = new int[indices.size()];
+        for (int i = 0; i < indices.size(); i++) {
+            indicesArray[i] = indices.get(i);
+        }
+
+        needsUpdate = false;
+        return new MeshGenerationResult(this, verticesArray, texCoordsArray, tintsArray, indicesArray);
+    }
+
+    public void uploadToGPU(MeshGenerationResult result) {
         if (mesh != null) {
             mesh.cleanup();
             mesh = null;
         }
 
-        if (!vertices.isEmpty()) {
-            float[] verticesArray = new float[vertices.size()];
-            for (int i = 0; i < vertices.size(); i++) {
-                verticesArray[i] = vertices.get(i);
-            }
-
-            float[] texCoordsArray = new float[texCoords.size()];
-            for (int i = 0; i < texCoords.size(); i++) {
-                texCoordsArray[i] = texCoords.get(i);
-            }
-
-            float[] tintsArray = new float[tints.size()];
-            for (int i = 0; i < tints.size(); i++) {
-                tintsArray[i] = tints.get(i);
-            }
-
-            int[] indicesArray = new int[indices.size()];
-            for (int i = 0; i < indices.size(); i++) {
-                indicesArray[i] = indices.get(i);
-            }
-
-            mesh = new Mesh(verticesArray, texCoordsArray, tintsArray, indicesArray);
+        if (result.vertices.length > 0) {
+            mesh = new Mesh(result.vertices, result.texCoords, result.tints, result.indices);
         }
 
-        needsUpdate = false;
+        state = ChunkState.READY;
     }
 
     private boolean shouldRenderFace(World world, int x, int y, int z, int dx, int dy, int dz) {
@@ -319,6 +339,14 @@ public class Chunk {
 
     public boolean needsUpdate() {
         return needsUpdate;
+    }
+
+    public ChunkState getState() {
+        return state;
+    }
+
+    public void setState(ChunkState state) {
+        this.state = state;
     }
 }
 

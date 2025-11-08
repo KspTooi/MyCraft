@@ -120,10 +120,33 @@ public class Game {
         world.update(player.getPosition());
         long worldUpdateTime = System.nanoTime() - worldUpdateStart;
         
+        long meshUploadStart = System.nanoTime();
+        com.ksptool.mycraft.world.ChunkMeshGenerator meshGenerator = world.getChunkMeshGenerator();
+        if (meshGenerator != null) {
+            java.util.List<java.util.concurrent.Future<com.ksptool.mycraft.world.MeshGenerationResult>> futures = meshGenerator.getPendingFutures();
+            java.util.List<java.util.concurrent.Future<com.ksptool.mycraft.world.MeshGenerationResult>> completedFutures = new java.util.ArrayList<>();
+            for (java.util.concurrent.Future<com.ksptool.mycraft.world.MeshGenerationResult> future : futures) {
+                if (future.isDone()) {
+                    try {
+                        com.ksptool.mycraft.world.MeshGenerationResult result = future.get();
+                        if (result != null) {
+                            result.chunk.uploadToGPU(result);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error uploading mesh to GPU: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                    completedFutures.add(future);
+                }
+            }
+            futures.removeAll(completedFutures);
+        }
+        long meshUploadTime = System.nanoTime() - meshUploadStart;
+        
         long totalUpdateTime = System.nanoTime() - updateStartTime;
         
         if (totalUpdateTime > 16_666_666) {
-            System.out.println("Update took " + (totalUpdateTime / 1_000_000) + "ms (Entities: " + (entityUpdateTime / 1_000_000) + "ms, Player: " + (playerUpdateTime / 1_000_000) + "ms, World: " + (worldUpdateTime / 1_000_000) + "ms)");
+            System.out.println("Update took " + (totalUpdateTime / 1_000_000) + "ms (Entities: " + (entityUpdateTime / 1_000_000) + "ms, Player: " + (playerUpdateTime / 1_000_000) + "ms, World: " + (worldUpdateTime / 1_000_000) + "ms, MeshUpload: " + (meshUploadTime / 1_000_000) + "ms)");
         }
     }
 

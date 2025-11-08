@@ -18,22 +18,20 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class World {
     private Map<String, Chunk> chunks;
     private static final int RENDER_DISTANCE = 8;
-    private static final int MAX_MESHES_PER_FRAME = 1;
     private int textureId;
     private float timeOfDay = 0.5f;
     private float timeSpeed = 0.0001f;
     
     private final BlockingQueue<ChunkGenerationTask> generationQueue;
-    private final BlockingQueue<ChunkGenerationTask> meshQueue;
     private final Map<String, ChunkGenerationTask> pendingChunks;
     private WorldGenerator worldGenerator;
+    private ChunkMeshGenerator chunkMeshGenerator;
     
     private final List<Entity> entities;
 
     public World() {
         this.chunks = new ConcurrentHashMap<>();
         this.generationQueue = new LinkedBlockingQueue<>();
-        this.meshQueue = new LinkedBlockingQueue<>();
         this.pendingChunks = new ConcurrentHashMap<>();
         this.entities = new ArrayList<>();
     }
@@ -41,7 +39,8 @@ public class World {
     public void init() {
         System.out.println("Initializing world...");
         loadTexture();
-        worldGenerator = new WorldGenerator(this, generationQueue, meshQueue);
+        chunkMeshGenerator = new ChunkMeshGenerator(this);
+        worldGenerator = new WorldGenerator(this, generationQueue);
         worldGenerator.start();
         System.out.println("World initialized");
     }
@@ -93,30 +92,20 @@ public class World {
             }
         }
 
-        int meshesGenerated = 0;
-        while (meshesGenerated < MAX_MESHES_PER_FRAME && !meshQueue.isEmpty()) {
-            ChunkGenerationTask task = meshQueue.poll();
-            if (task != null && task.isDataGenerated() && task.getChunk() != null) {
-                int taskChunkX = task.getChunkX();
-                int taskChunkZ = task.getChunkZ();
-                int distance = Math.max(Math.abs(taskChunkX - playerChunkX), Math.abs(taskChunkZ - playerChunkZ));
-                
-                if (distance > RENDER_DISTANCE + 3) {
-                    System.out.println("Skipping chunk [" + taskChunkX + "," + taskChunkZ + "] - too far from player (distance: " + distance + ")");
-                    pendingChunks.remove(taskChunkX + "," + taskChunkZ);
-                    continue;
+        for (int x = playerChunkX - RENDER_DISTANCE; x <= playerChunkX + RENDER_DISTANCE; x++) {
+            for (int z = playerChunkZ - RENDER_DISTANCE; z <= playerChunkZ + RENDER_DISTANCE; z++) {
+                String key = x + "," + z;
+                ChunkGenerationTask task = pendingChunks.get(key);
+                if (task != null && task.isDataGenerated() && task.getChunk() != null) {
+                    Chunk chunk = task.getChunk();
+                    if (!chunks.containsKey(key)) {
+                        chunks.put(key, chunk);
+                    }
+                    if (chunk.getState() == Chunk.ChunkState.DATA_LOADED) {
+                        chunkMeshGenerator.submitMeshTask(chunk);
+                        chunk.setState(Chunk.ChunkState.AWAITING_MESH);
+                    }
                 }
-                
-                long meshStartTime = System.nanoTime();
-                task.getChunk().generateMesh(this);
-                long meshElapsed = System.nanoTime() - meshStartTime;
-                
-                String key = taskChunkX + "," + taskChunkZ;
-                chunks.put(key, task.getChunk());
-                pendingChunks.remove(key);
-                meshesGenerated++;
-                
-                System.out.println("Generated mesh for chunk [" + taskChunkX + "," + taskChunkZ + "] in " + (meshElapsed / 1_000_000) + "ms");
             }
         }
         
@@ -189,7 +178,11 @@ public class World {
         
         Chunk chunk = new Chunk(chunkX, chunkZ);
         generateChunkData(chunk);
-        chunk.generateMesh(this);
+        chunk.setState(Chunk.ChunkState.DATA_LOADED);
+        MeshGenerationResult result = chunk.calculateMeshData(this);
+        if (result != null) {
+            chunk.uploadToGPU(result);
+        }
         chunks.put(key, chunk);
         System.out.println("Synchronously generated chunk [" + chunkX + "," + chunkZ + "]");
     }
@@ -265,14 +258,22 @@ public class World {
         int localX = x - chunkX * Chunk.CHUNK_SIZE;
         int localZ = z - chunkZ * Chunk.CHUNK_SIZE;
         chunk.setBlockState(localX, y, localZ, stateId);
-        chunk.generateMesh(this);
+        if (chunk.getState() == Chunk.ChunkState.READY) {
+            chunk.setState(Chunk.ChunkState.DATA_LOADED);
+        }
+        chunkMeshGenerator.submitMeshTask(chunk);
+        chunk.setState(Chunk.ChunkState.AWAITING_MESH);
 
         int[][] neighborOffsets = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
         for (int[] offset : neighborOffsets) {
             String neighborKey = (chunkX + offset[0]) + "," + (chunkZ + offset[1]);
             Chunk neighborChunk = chunks.get(neighborKey);
             if (neighborChunk != null) {
-                neighborChunk.generateMesh(this);
+                if (neighborChunk.getState() == Chunk.ChunkState.READY) {
+                    neighborChunk.setState(Chunk.ChunkState.DATA_LOADED);
+                }
+                chunkMeshGenerator.submitMeshTask(neighborChunk);
+                neighborChunk.setState(Chunk.ChunkState.AWAITING_MESH);
             }
         }
     }
@@ -353,7 +354,9 @@ public class World {
         chunks.clear();
         pendingChunks.clear();
         generationQueue.clear();
-        meshQueue.clear();
+        if (chunkMeshGenerator != null) {
+            chunkMeshGenerator.shutdown();
+        }
         GL11.glDeleteTextures(textureId);
     }
 
@@ -364,6 +367,10 @@ public class World {
     public org.joml.Vector3f getSkyColor() {
         float brightness = (float) (0.3 + 0.7 * Math.sin(timeOfDay * Math.PI * 2));
         return new org.joml.Vector3f(brightness, brightness, brightness);
+    }
+
+    public ChunkMeshGenerator getChunkMeshGenerator() {
+        return chunkMeshGenerator;
     }
 }
 
