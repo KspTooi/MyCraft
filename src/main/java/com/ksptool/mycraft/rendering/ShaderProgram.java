@@ -130,5 +130,9 @@ public class ShaderProgram {
         }
         GL20.glUniform2f(location, value.x, value.y);
     }
+
+    public void setAmbientLight(org.joml.Vector3f lightColor) {
+        setUniform("ambientLight", lightColor);
+    }
 }
 

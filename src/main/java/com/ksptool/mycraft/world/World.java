@@ -21,8 +21,9 @@ public class World {
     private Map<Long, Chunk> chunks;
     private static final int RENDER_DISTANCE = 8;
     private int textureId;
-    private float timeOfDay = 0.5f;
-    private float timeSpeed = 0.0001f;
+    private long gameTime = 0;
+    private static final int TICKS_PER_DAY = 24000;
+    private static final float TIME_SPEED = 1.0f;
     
     private final BlockingQueue<ChunkGenerationTask> generationQueue;
     private final Map<Long, ChunkGenerationTask> pendingChunks;
@@ -80,10 +81,7 @@ public class World {
     }
 
     public void update(Vector3f playerPosition) {
-        timeOfDay += timeSpeed;
-        if (timeOfDay > 1.0f) {
-            timeOfDay -= 1.0f;
-        }
+        gameTime += TIME_SPEED;
 
         int playerChunkX = (int) Math.floor(playerPosition.x / Chunk.CHUNK_SIZE);
         int playerChunkZ = (int) Math.floor(playerPosition.z / Chunk.CHUNK_SIZE);
@@ -355,12 +353,95 @@ public class World {
     }
 
     public float getTimeOfDay() {
-        return timeOfDay;
+        return (float) (gameTime % TICKS_PER_DAY) / TICKS_PER_DAY;
+    }
+
+    public long getGameTime() {
+        return gameTime;
     }
 
     public org.joml.Vector3f getSkyColor() {
-        float brightness = (float) (0.3 + 0.7 * Math.sin(timeOfDay * Math.PI * 2));
-        return new org.joml.Vector3f(brightness, brightness, brightness);
+        float t = getTimeOfDay();
+        
+        Vector3f midnight = new Vector3f(0.05f, 0.05f, 0.15f);
+        Vector3f sunriseStart = new Vector3f(1.0f, 0.5f, 0.1f);
+        Vector3f sunriseEnd = new Vector3f(0.4f, 0.7f, 0.9f);
+        Vector3f noon = new Vector3f(0.48f, 0.75f, 0.94f);
+        Vector3f sunsetStart = new Vector3f(0.4f, 0.7f, 0.9f);
+        Vector3f sunsetEnd = new Vector3f(1.0f, 0.5f, 0.1f);
+        
+        if (t < 0.125f) {
+            float factor = t / 0.125f;
+            factor = (float) ((1.0f - Math.cos(factor * Math.PI)) * 0.5f);
+            return new Vector3f(
+                midnight.x + (sunriseStart.x - midnight.x) * factor,
+                midnight.y + (sunriseStart.y - midnight.y) * factor,
+                midnight.z + (sunriseStart.z - midnight.z) * factor
+            );
+        }
+        if (t < 0.25f) {
+            float factor = (t - 0.125f) / 0.125f;
+            factor = (float) ((1.0f - Math.cos(factor * Math.PI)) * 0.5f);
+            return new Vector3f(
+                sunriseStart.x + (sunriseEnd.x - sunriseStart.x) * factor,
+                sunriseStart.y + (sunriseEnd.y - sunriseStart.y) * factor,
+                sunriseStart.z + (sunriseEnd.z - sunriseStart.z) * factor
+            );
+        }
+        if (t < 0.5f) {
+            float factor = (t - 0.25f) / 0.25f;
+            factor = (float) ((1.0f - Math.cos(factor * Math.PI)) * 0.5f);
+            return new Vector3f(
+                sunriseEnd.x + (noon.x - sunriseEnd.x) * factor,
+                sunriseEnd.y + (noon.y - sunriseEnd.y) * factor,
+                sunriseEnd.z + (noon.z - sunriseEnd.z) * factor
+            );
+        }
+        if (t < 0.75f) {
+            float factor = (t - 0.5f) / 0.25f;
+            factor = (float) ((1.0f - Math.cos(factor * Math.PI)) * 0.5f);
+            return new Vector3f(
+                noon.x + (sunsetStart.x - noon.x) * factor,
+                noon.y + (sunsetStart.y - noon.y) * factor,
+                noon.z + (sunsetStart.z - noon.z) * factor
+            );
+        }
+        if (t < 0.875f) {
+            float factor = (t - 0.75f) / 0.125f;
+            factor = (float) ((1.0f - Math.cos(factor * Math.PI)) * 0.5f);
+            return new Vector3f(
+                sunsetStart.x + (sunsetEnd.x - sunsetStart.x) * factor,
+                sunsetStart.y + (sunsetEnd.y - sunsetStart.y) * factor,
+                sunsetStart.z + (sunsetEnd.z - sunsetStart.z) * factor
+            );
+        }
+        float factor = (t - 0.875f) / 0.125f;
+        factor = (float) ((1.0f - Math.cos(factor * Math.PI)) * 0.5f);
+        return new Vector3f(
+            sunsetEnd.x + (midnight.x - sunsetEnd.x) * factor,
+            sunsetEnd.y + (midnight.y - sunsetEnd.y) * factor,
+            sunsetEnd.z + (midnight.z - sunsetEnd.z) * factor
+        );
+    }
+
+    public org.joml.Vector3f getAmbientLightColor() {
+        float t = getTimeOfDay();
+        Vector3f midnight = new Vector3f(0.1f, 0.1f, 0.15f);
+        Vector3f noon = new Vector3f(1.0f, 1.0f, 1.0f);
+        
+        float factor;
+        if (t < 0.5f) {
+            factor = t / 0.5f;
+        } else {
+            factor = (1.0f - t) / 0.5f;
+        }
+        factor = (float) ((1.0f - Math.cos(factor * Math.PI)) * 0.5f);
+        
+        return new Vector3f(
+            midnight.x + (noon.x - midnight.x) * factor,
+            midnight.y + (noon.y - midnight.y) * factor,
+            midnight.z + (noon.z - midnight.z) * factor
+        );
     }
 
     public ChunkMeshGenerator getChunkMeshGenerator() {

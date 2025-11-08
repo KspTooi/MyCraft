@@ -44,13 +44,16 @@ public class Renderer {
         player.getCamera().setProjectionMatrix(projectionMatrix);
         org.joml.Matrix4f viewMatrix = player.getCamera().getViewMatrix();
         
+        org.joml.Vector3f skyColor = world.getSkyColor();
+        GL11.glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.0f);
+        
+        org.joml.Vector3f ambientLight = world.getAmbientLightColor();
+        shader.setAmbientLight(ambientLight);
+        
         shader.setUniform("projection", projectionMatrix);
         shader.setUniform("view", viewMatrix);
         shader.setUniform("model", new org.joml.Matrix4f().identity());
         shader.setUniform("textureSampler", 0);
-        shader.setUniform("timeOfDay", world.getTimeOfDay());
-        org.joml.Vector3f skyColor = world.getSkyColor();
-        shader.setUniform("skyColor", skyColor);
         shader.setUniform("u_TintColor", new org.joml.Vector3f(0.2f, 1.0f, 0.1f));
         
         if (projectionMatrix.m00() == 0) {
