@@ -37,3 +37,20 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Project ###
+saves
+saves/**
+logs
+logs/**
+.vscode
+.vscode/**
+.idea
+.idea/**
+.cursor
+.cursor/**
+.git
+.git/**
+.mvn
+.mvn/**
+
