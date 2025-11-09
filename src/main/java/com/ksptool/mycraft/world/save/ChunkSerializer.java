@@ -152,6 +152,7 @@ public class ChunkSerializer {
         }
         
         chunk.setState(Chunk.ChunkState.DATA_LOADED);
+        chunk.markDirty(false);
         return chunk;
     }
     

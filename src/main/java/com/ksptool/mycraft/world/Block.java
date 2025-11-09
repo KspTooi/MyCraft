@@ -58,6 +58,10 @@ public abstract class Block {
         return true;
     }
 
+    public boolean isFluid() {
+        return false;
+    }
+
     public abstract String getTextureName(int face, BlockState state);
 
     private void generateStates() {
@@ -107,5 +111,6 @@ public abstract class Block {
         registry.register(new com.ksptool.mycraft.world.blocks.StoneBlock());
         registry.register(new com.ksptool.mycraft.world.blocks.WoodBlock());
         registry.register(new com.ksptool.mycraft.world.blocks.LeavesBlock());
+        registry.register(new com.ksptool.mycraft.world.blocks.WaterBlock());
     }
 }
