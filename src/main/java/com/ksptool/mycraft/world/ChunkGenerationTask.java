@@ -1,5 +1,8 @@
 package com.ksptool.mycraft.world;
 
+/**
+ * 区块生成任务类，封装区块生成任务的状态信息
+ */
 public class ChunkGenerationTask {
     private final int chunkX;
     private final int chunkZ;

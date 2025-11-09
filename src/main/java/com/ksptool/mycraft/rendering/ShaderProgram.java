@@ -9,13 +9,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * 着色器程序管理类，负责加载、编译和链接GLSL着色器程序
+ */
 public class ShaderProgram {
     private int programId;
     private int vertexShaderId;
     private int fragmentShaderId;
 
     public ShaderProgram(String vertexShaderPath, String fragmentShaderPath) {
-        System.out.println("Loading shaders: " + vertexShaderPath + ", " + fragmentShaderPath);
         vertexShaderId = loadShader(vertexShaderPath, GL20.GL_VERTEX_SHADER);
         fragmentShaderId = loadShader(fragmentShaderPath, GL20.GL_FRAGMENT_SHADER);
         programId = GL20.glCreateProgram();
@@ -28,7 +30,6 @@ public class ShaderProgram {
             System.err.println("Shader linking error: " + error);
             throw new RuntimeException("Error linking Shader code: " + error);
         }
-        System.out.println("Shaders loaded successfully");
 
         if (vertexShaderId != 0) {
             GL20.glDetachShader(programId, vertexShaderId);
@@ -129,6 +130,15 @@ public class ShaderProgram {
             return;
         }
         GL20.glUniform2f(location, value.x, value.y);
+    }
+
+    public void setUniform(String name, boolean value) {
+        int location = GL20.glGetUniformLocation(programId, name);
+        if (location == -1) {
+            System.err.println("WARNING: Uniform '" + name + "' not found in shader!");
+            return;
+        }
+        GL20.glUniform1i(location, value ? 1 : 0);
     }
 
     public void setAmbientLight(org.joml.Vector3f lightColor) {

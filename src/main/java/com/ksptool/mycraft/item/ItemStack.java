@@ -1,5 +1,8 @@
 package com.ksptool.mycraft.item;
 
+/**
+ * 物品堆栈类，表示一组相同物品及其数量
+ */
 public class ItemStack {
     private Item item;
     private int count;

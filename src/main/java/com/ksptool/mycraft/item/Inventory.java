@@ -1,5 +1,8 @@
 package com.ksptool.mycraft.item;
 
+/**
+ * 物品栏管理类，管理玩家的快捷栏和物品选择
+ */
 public class Inventory {
     private static final int HOTBAR_SIZE = 9;
     private ItemStack[] hotbar;

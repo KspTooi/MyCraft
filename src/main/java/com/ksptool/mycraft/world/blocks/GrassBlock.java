@@ -4,6 +4,9 @@ import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.BlockState;
 import com.ksptool.mycraft.world.properties.BooleanProperty;
 
+/**
+ * 草方块类，具有雪化属性
+ */
 public class GrassBlock extends Block {
     public static final BooleanProperty SNOWY = BooleanProperty.create("snowy");
 

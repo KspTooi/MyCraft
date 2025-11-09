@@ -3,6 +3,9 @@ package com.ksptool.mycraft.world;
 import java.util.List;
 import java.util.concurrent.*;
 
+/**
+ * 区块网格异步生成器类，使用线程池异步生成区块网格数据
+ */
 public class ChunkMeshGenerator {
     private final ExecutorService executor;
     private final List<Future<MeshGenerationResult>> pendingFutures = new CopyOnWriteArrayList<>();

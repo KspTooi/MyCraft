@@ -10,6 +10,9 @@ import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 纹理图集管理类，负责加载和管理方块纹理图集
+ */
 public class TextureManager {
     private static final int TEXTURE_SIZE = 16;
     private static final int ATLAS_SIZE = 1024;

@@ -3,6 +3,9 @@ package com.ksptool.mycraft.world;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+/**
+ * 射线检测类，用于检测射线与方块的碰撞
+ */
 public class Raycast {
     public static RaycastResult cast(World world, Vector3f origin, Vector3f direction, float maxDistance) {
         RaycastResult result = new RaycastResult();

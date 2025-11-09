@@ -17,6 +17,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * 世界管理类，负责区块管理、实体管理、世界生成、时间系统和渲染
+ */
 public class World {
     private Map<Long, Chunk> chunks;
     private static final int RENDER_DISTANCE = 8;
@@ -35,6 +38,9 @@ public class World {
     
     private int lastPlayerChunkX = Integer.MIN_VALUE;
     private int lastPlayerChunkZ = Integer.MIN_VALUE;
+    
+    private String worldName;
+    private long seed;
 
     private static long getChunkKey(int x, int z) {
         return ((long)x << 32) | (z & 0xFFFFFFFFL);
@@ -46,6 +52,7 @@ public class World {
         this.pendingChunks = new ConcurrentHashMap<>();
         this.entities = new ArrayList<>();
         this.frustum = new Frustum();
+        this.seed = System.currentTimeMillis();
     }
 
     public void init() {
@@ -152,7 +159,7 @@ public class World {
                 int worldX = chunkX * Chunk.CHUNK_SIZE + x;
                 int worldZ = chunkZ * Chunk.CHUNK_SIZE + z;
 
-                double noiseValue = NoiseGenerator.noise(worldX * 0.05, worldZ * 0.05);
+                double noiseValue = NoiseGenerator.noise(worldX * 0.05 + seed, worldZ * 0.05 + seed);
                 int height = (int) (64 + noiseValue * 20);
 
                 for (int y = 0; y < Chunk.CHUNK_HEIGHT; y++) {
@@ -188,7 +195,7 @@ public class World {
     }
     
     public int getHeightAt(int worldX, int worldZ) {
-        double noiseValue = NoiseGenerator.noise(worldX * 0.05, worldZ * 0.05);
+        double noiseValue = NoiseGenerator.noise(worldX * 0.05 + seed, worldZ * 0.05 + seed);
         return (int) (64 + noiseValue * 20);
     }
 
@@ -446,6 +453,92 @@ public class World {
 
     public ChunkMeshGenerator getChunkMeshGenerator() {
         return chunkMeshGenerator;
+    }
+
+    public String getWorldName() {
+        return worldName;
+    }
+
+    public void setWorldName(String worldName) {
+        this.worldName = worldName;
+    }
+
+    public long getSeed() {
+        return seed;
+    }
+
+    public void setSeed(long seed) {
+        this.seed = seed;
+    }
+
+    public void saveToFile(String chunksDirPath) {
+        java.io.File chunksDir = new java.io.File(chunksDirPath);
+        if (!chunksDir.exists()) {
+            chunksDir.mkdirs();
+        }
+
+        for (Map.Entry<Long, Chunk> entry : chunks.entrySet()) {
+            long key = entry.getKey();
+            Chunk chunk = entry.getValue();
+            int chunkX = (int)(key >> 32);
+            int chunkZ = (int)(key & 0xFFFFFFFFL);
+            
+            String fileName = "chunk_" + chunkX + "_" + chunkZ + ".dat";
+            java.io.File chunkFile = new java.io.File(chunksDir, fileName);
+            
+            try (java.io.DataOutputStream dos = new java.io.DataOutputStream(
+                    new java.io.FileOutputStream(chunkFile))) {
+                dos.writeInt(chunkX);
+                dos.writeInt(chunkZ);
+                
+                for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
+                    for (int y = 0; y < Chunk.CHUNK_HEIGHT; y++) {
+                        for (int z = 0; z < Chunk.CHUNK_SIZE; z++) {
+                            dos.writeInt(chunk.getBlockState(x, y, z));
+                        }
+                    }
+                }
+            } catch (java.io.IOException e) {
+                System.err.println("保存区块失败 [" + chunkX + "," + chunkZ + "]: " + e.getMessage());
+            }
+        }
+    }
+
+    public void loadFromFile(String chunksDirPath) {
+        java.io.File chunksDir = new java.io.File(chunksDirPath);
+        if (!chunksDir.exists()) {
+            return;
+        }
+
+        java.io.File[] chunkFiles = chunksDir.listFiles((dir, name) -> name.endsWith(".dat"));
+        if (chunkFiles == null) {
+            return;
+        }
+
+        for (java.io.File chunkFile : chunkFiles) {
+            try (java.io.DataInputStream dis = new java.io.DataInputStream(
+                    new java.io.FileInputStream(chunkFile))) {
+                int chunkX = dis.readInt();
+                int chunkZ = dis.readInt();
+                
+                Chunk chunk = new Chunk(chunkX, chunkZ);
+                
+                for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
+                    for (int y = 0; y < Chunk.CHUNK_HEIGHT; y++) {
+                        for (int z = 0; z < Chunk.CHUNK_SIZE; z++) {
+                            int stateId = dis.readInt();
+                            chunk.setBlockState(x, y, z, stateId);
+                        }
+                    }
+                }
+                
+                chunk.setState(Chunk.ChunkState.DATA_LOADED);
+                long key = getChunkKey(chunkX, chunkZ);
+                chunks.put(key, chunk);
+            } catch (java.io.IOException e) {
+                System.err.println("加载区块失败: " + chunkFile.getName() + " - " + e.getMessage());
+            }
+        }
     }
 }
 

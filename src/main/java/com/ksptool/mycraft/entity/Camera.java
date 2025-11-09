@@ -3,13 +3,16 @@ package com.ksptool.mycraft.entity;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+/**
+ * 相机类，负责计算视图矩阵和投影矩阵
+ */
 public class Camera {
-    private Vector3f position;
+    private final Vector3f position;
     private float pitch;
     private float yaw;
     private float roll;
-    private Matrix4f viewMatrix;
-    private Matrix4f projectionMatrix;
+    private final Matrix4f viewMatrix;
+    private final Matrix4f projectionMatrix;
 
     public Camera() {
         this.position = new Vector3f();

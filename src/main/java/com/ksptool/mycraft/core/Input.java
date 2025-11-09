@@ -4,6 +4,9 @@ import org.joml.Vector2d;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+/**
+ * 输入处理类，负责处理键盘、鼠标输入和鼠标锁定
+ */
 public class Input {
     private long windowHandle;
     private boolean[] keys;
@@ -120,6 +123,10 @@ public class Input {
 
     public double getScrollY() {
         return scrollY;
+    }
+
+    public Vector2d getMousePosition() {
+        return new Vector2d(mousePosition);
     }
 }
 

@@ -3,6 +3,9 @@ package com.ksptool.mycraft.world.properties;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * 整数属性类，表示方块的整数类型属性
+ */
 public class IntegerProperty extends BlockProperty<Integer> {
     public IntegerProperty(String name, int min, int max) {
         super(name, Integer.class, createRange(min, max));

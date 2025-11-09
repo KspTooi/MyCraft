@@ -1,5 +1,8 @@
 package com.ksptool.mycraft.world;
 
+/**
+ * 噪声生成器类，用于生成地形高度噪声
+ */
 public class NoiseGenerator {
     private static final int OCTAVES = 4;
     private static final double PERSISTENCE = 0.5;

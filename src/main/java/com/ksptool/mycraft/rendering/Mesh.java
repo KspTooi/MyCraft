@@ -12,6 +12,9 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
 
+/**
+ * 网格数据管理类，封装顶点、纹理坐标、索引等渲染数据
+ */
 public class Mesh {
     private int vaoId;
     private int vboId;

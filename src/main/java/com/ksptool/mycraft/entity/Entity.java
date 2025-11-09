@@ -6,6 +6,9 @@ import org.joml.Vector3f;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * 实体基类，定义实体的基本属性和行为
+ */
 public abstract class Entity {
     protected final World world;
     protected final UUID uniqueId;

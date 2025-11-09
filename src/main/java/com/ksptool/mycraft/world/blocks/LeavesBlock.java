@@ -3,6 +3,9 @@ package com.ksptool.mycraft.world.blocks;
 import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.BlockState;
 
+/**
+ * 树叶方块类
+ */
 public class LeavesBlock extends Block {
     public LeavesBlock() {
         super("mycraft:leaves", 0.2f, 0);

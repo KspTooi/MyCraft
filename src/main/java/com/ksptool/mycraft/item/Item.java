@@ -1,5 +1,8 @@
 package com.ksptool.mycraft.item;
 
+/**
+ * 物品定义类，定义物品的基本属性
+ */
 public class Item {
     private int id;
     private String name;

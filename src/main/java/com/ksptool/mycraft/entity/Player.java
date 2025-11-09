@@ -12,8 +12,11 @@ import com.ksptool.mycraft.world.World;
 import org.joml.Vector2d;
 import org.joml.Vector3f;
 
+/**
+ * 玩家实体类，处理玩家移动、相机控制、方块放置和破坏
+ */
 public class Player extends LivingEntity {
-    private Camera camera;
+    private final Camera camera;
     private Inventory inventory;
     private float speed = 100f;
     private float mouseSensitivity = 0.1f;

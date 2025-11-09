@@ -5,24 +5,24 @@ import com.ksptool.mycraft.world.World;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
+/**
+ * 主渲染器类，负责渲染世界和玩家快捷栏
+ */
 public class Renderer {
     private ShaderProgram shader;
     private Matrix4f projectionMatrix;
     private HotbarRenderer hotbarRenderer;
 
     public void init() {
-        System.out.println("Initializing renderer...");
         shader = new ShaderProgram("/shaders/vertex.glsl", "/shaders/fragment.glsl");
         projectionMatrix = new Matrix4f();
         hotbarRenderer = new HotbarRenderer();
-        System.out.println("Renderer initialized");
     }
 
     public void resize(int width, int height) {
         GL11.glViewport(0, 0, width, height);
         projectionMatrix.identity();
         projectionMatrix.perspective((float) Math.toRadians(70.0f), (float) width / height, 0.1f, 1000.0f);
-        System.out.println("Renderer.resize: " + width + "x" + height + ", near=0.1, far=1000");
     }
 
     public void clear() {

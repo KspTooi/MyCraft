@@ -2,6 +2,9 @@ package com.ksptool.mycraft.world;
 
 import java.util.*;
 
+/**
+ * 全局方块状态调色板类，管理所有方块状态到ID的映射
+ */
 public class GlobalPalette {
     private static final GlobalPalette INSTANCE = new GlobalPalette();
     private final List<BlockState> stateList;
@@ -98,5 +101,6 @@ public class GlobalPalette {
         stateToId.clear();
         baked = false;
     }
+
 }
 

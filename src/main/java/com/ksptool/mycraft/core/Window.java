@@ -14,6 +14,9 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+/**
+ * GLFW窗口管理类，负责窗口创建、初始化和OpenGL上下文管理
+ */
 public class Window {
     private long windowHandle;
     private int width;

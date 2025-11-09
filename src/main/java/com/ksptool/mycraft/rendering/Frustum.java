@@ -4,6 +4,9 @@ import com.ksptool.mycraft.entity.BoundingBox;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
+/**
+ * 视锥剔除类，用于判断边界框是否在视锥体内
+ */
 public class Frustum {
     private Vector4f[] planes = new Vector4f[6];
     

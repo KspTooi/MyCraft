@@ -2,6 +2,9 @@ package com.ksptool.mycraft.world;
 
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * 世界生成线程类，在后台线程中生成区块数据
+ */
 public class WorldGenerator extends Thread {
     private final BlockingQueue<ChunkGenerationTask> generationQueue;
     private final World world;
@@ -16,7 +19,6 @@ public class WorldGenerator extends Thread {
 
     @Override
     public void run() {
-        System.out.println("WorldGenerator thread started");
         while (running) {
             try {
                 ChunkGenerationTask task = generationQueue.take();
@@ -24,15 +26,11 @@ public class WorldGenerator extends Thread {
                     continue;
                 }
 
-                long startTime = System.nanoTime();
                 Chunk chunk = new Chunk(task.getChunkX(), task.getChunkZ());
                 world.generateChunkData(chunk);
                 chunk.setState(Chunk.ChunkState.DATA_LOADED);
                 task.setChunk(chunk);
                 task.setDataGenerated(true);
-                
-                long elapsed = System.nanoTime() - startTime;
-                System.out.println("Generated chunk [" + task.getChunkX() + "," + task.getChunkZ() + "] data in " + (elapsed / 1_000_000) + "ms");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
@@ -41,7 +39,6 @@ public class WorldGenerator extends Thread {
                 e.printStackTrace();
             }
         }
-        System.out.println("WorldGenerator thread stopped");
     }
 
     public void stopGenerator() {

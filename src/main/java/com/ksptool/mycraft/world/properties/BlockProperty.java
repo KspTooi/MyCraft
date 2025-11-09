@@ -2,6 +2,9 @@ package com.ksptool.mycraft.world.properties;
 
 import java.util.Collection;
 
+/**
+ * 方块属性基类，定义方块属性的基本结构
+ */
 public abstract class BlockProperty<T extends Comparable<T>> {
     private final String name;
     private final Class<T> valueClass;

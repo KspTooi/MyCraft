@@ -3,8 +3,14 @@ package com.ksptool.mycraft.entity;
 import com.ksptool.mycraft.world.World;
 import org.joml.Vector3f;
 
+/**
+ * 生物实体基类，实现重力、物理运动和碰撞检测
+ */
 public abstract class LivingEntity extends Entity {
+
+    //默认重力为 -20F
     protected static final float GRAVITY = -20.0f;
+
     protected static final float JUMP_VELOCITY = 8.0f;
     
     protected float health = 20.0f;

@@ -2,6 +2,9 @@ package com.ksptool.mycraft.world;
 
 import org.joml.Vector3i;
 
+/**
+ * 射线检测结果类，存储射线检测的命中信息
+ */
 public class RaycastResult {
     private Vector3i blockPosition;
     private Vector3i faceNormal;

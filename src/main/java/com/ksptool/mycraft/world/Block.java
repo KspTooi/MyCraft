@@ -4,6 +4,9 @@ import com.ksptool.mycraft.world.properties.BlockProperty;
 
 import java.util.*;
 
+/**
+ * 方块基类，定义方块的基本属性和状态生成逻辑
+ */
 public abstract class Block {
     private final String namespacedID;
     private final float durability;

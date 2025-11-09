@@ -7,6 +7,9 @@ import com.ksptool.mycraft.rendering.TextureManager;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 区块类，存储方块数据并生成渲染网格
+ */
 public class Chunk {
     public static final int CHUNK_SIZE = 16;
     public static final int CHUNK_HEIGHT = 256;

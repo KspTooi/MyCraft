@@ -1,5 +1,8 @@
 package com.ksptool.mycraft.world;
 
+/**
+ * 网格生成结果数据类，封装区块网格生成的结果数据
+ */
 public class MeshGenerationResult {
     public final float[] vertices;
     public final float[] texCoords;

@@ -2,6 +2,9 @@ package com.ksptool.mycraft.entity;
 
 import org.joml.Vector3f;
 
+/**
+ * 碰撞边界框类，用于实体碰撞检测
+ */
 public class BoundingBox {
     private float minX;
     private float minY;
