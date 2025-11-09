@@ -136,9 +136,10 @@ public class Game {
             currentState = GameState.MAIN_MENU;
         }
         if (result == 3) {
+            String selectedSave = singleplayerMenu.getSelectedSave();
             String selectedWorld = singleplayerMenu.getSelectedWorld();
-            if (selectedWorld != null) {
-                loadWorld(selectedWorld);
+            if (selectedSave != null && selectedWorld != null) {
+                loadWorld(selectedSave, selectedWorld);
             }
         }
     }
@@ -147,8 +148,9 @@ public class Game {
         int result = createWorldMenu.handleInput(input, window.getWidth(), window.getHeight());
         if (result == 1) {
             String worldName = createWorldMenu.getWorldName();
-            if (worldName != null && !worldName.isEmpty()) {
-                createNewWorld(worldName);
+            String saveName = createWorldMenu.getSaveName();
+            if (worldName != null && !worldName.isEmpty() && saveName != null && !saveName.isEmpty()) {
+                createNewWorld(saveName, worldName);
             }
         }
         if (result == 2) {
@@ -317,9 +319,12 @@ public class Game {
                mouseY >= buttonY && mouseY <= buttonY + buttonHeight;
     }
 
-    public void startGame(String worldName) {
+    private String currentSaveName = null;
+    private String currentWorldName = null;
+
+    public void startGame(String saveName, String worldName) {
         if (world == null) {
-            createNewWorld(worldName);
+            createNewWorld(saveName, worldName);
         }
         
         if (world == null) {
@@ -348,14 +353,16 @@ public class Game {
             world.addEntity(player);
         }
         
+        currentSaveName = saveName;
+        currentWorldName = worldName;
         currentState = GameState.IN_GAME;
         input.setMouseLocked(true);
     }
 
-    public void loadWorld(String worldName) {
+    public void loadWorld(String saveName, String worldName) {
         cleanupWorld();
         
-        World loadedWorld = WorldManager.getInstance().loadWorld(worldName);
+        World loadedWorld = WorldManager.getInstance().loadWorld(saveName, worldName);
         if (loadedWorld == null) {
             return;
         }
@@ -377,37 +384,63 @@ public class Game {
         int groundHeight = world.getHeightAt((int) initialX, (int) initialZ);
         float initialY = groundHeight + 1.0f;
         
-        player = new Player(world);
+        java.util.UUID playerUUID = com.ksptool.mycraft.world.save.SaveManager.getInstance().findFirstPlayerUUID(saveName);
+        if (playerUUID == null) {
+            playerUUID = java.util.UUID.randomUUID();
+        }
+        
+        player = new Player(world, playerUUID);
         player.getPosition().set(initialX, initialY, initialZ);
         player.initializeCamera();
         world.addEntity(player);
         
+        com.ksptool.mycraft.world.save.PlayerIndex playerIndex = com.ksptool.mycraft.world.save.SaveManager.getInstance().loadPlayer(saveName, playerUUID);
+        if (playerIndex != null) {
+            player.loadFromPlayerIndex(playerIndex);
+            if (player.getPosition().y > 0) {
+                initialX = player.getPosition().x;
+                initialY = player.getPosition().y;
+                initialZ = player.getPosition().z;
+            }
+        }
+        
+        currentSaveName = saveName;
+        currentWorldName = worldName;
         currentState = GameState.IN_GAME;
         input.setMouseLocked(true);
     }
 
-    public void createNewWorld(String worldName) {
+    public void createNewWorld(String saveName, String worldName) {
         cleanupWorld();
+        
+        com.ksptool.mycraft.world.save.SaveManager saveManager = com.ksptool.mycraft.world.save.SaveManager.getInstance();
+        if (!saveManager.saveExists(saveName)) {
+            if (!saveManager.createSave(saveName)) {
+                return;
+            }
+        }
         
         world = new World();
         world.setWorldName(worldName);
         world.setSeed(System.currentTimeMillis());
         world.init();
         
-        WorldManager.getInstance().saveWorld(world, worldName);
+        WorldManager.getInstance().saveWorld(world, saveName, worldName);
         
-        startGame(worldName);
+        startGame(saveName, worldName);
     }
 
     private void cleanupWorld() {
         if (world != null) {
-            if (world.getWorldName() != null) {
-                WorldManager.getInstance().saveWorld(world, world.getWorldName());
+            if (currentSaveName != null && currentWorldName != null) {
+                WorldManager.getInstance().saveWorld(world, player, currentSaveName, currentWorldName);
             }
             world.cleanup();
             world = null;
         }
         player = null;
+        currentSaveName = null;
+        currentWorldName = null;
     }
 
     private void cleanup() {

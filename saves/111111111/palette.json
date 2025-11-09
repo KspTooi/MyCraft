@@ -1,0 +1,13 @@
+{
+  "states": [
+    "mycraft:air",
+    "mycraft:dirt",
+    "mycraft:grass_block[snowy\u003dfalse]",
+    "mycraft:grass_block[snowy\u003dtrue]",
+    "mycraft:leaves",
+    "mycraft:stone",
+    "mycraft:wood[axis\u003dX]",
+    "mycraft:wood[axis\u003dY]",
+    "mycraft:wood[axis\u003dZ]"
+  ]
+}

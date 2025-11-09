@@ -29,6 +29,14 @@ public class Player extends LivingEntity {
         this.boundingBox = new BoundingBox(position, 0.6f, 1.8f);
     }
 
+    public Player(World world, java.util.UUID uniqueId) {
+        super(world, uniqueId);
+        this.camera = new Camera();
+        this.inventory = new Inventory();
+        this.eyeHeight = 1.6f;
+        this.boundingBox = new BoundingBox(position, 0.6f, 1.8f);
+    }
+
     public void initializeCamera() {
         camera.setYaw(0);
         camera.setPitch(0);
@@ -59,6 +67,7 @@ public class Player extends LivingEntity {
 
             camera.setYaw(camera.getYaw() + deltaYaw);
             camera.setPitch(camera.getPitch() + deltaPitch);
+            markDirty(true);
         }
     }
 
@@ -100,17 +109,45 @@ public class Player extends LivingEntity {
         double scrollY = input.getScrollY();
         if (scrollY != 0) {
             inventory.scrollSelection((int) -scrollY);
+            markDirty(true);
         }
 
-        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_1)) inventory.setSelectedSlot(0);
-        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_2)) inventory.setSelectedSlot(1);
-        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_3)) inventory.setSelectedSlot(2);
-        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_4)) inventory.setSelectedSlot(3);
-        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_5)) inventory.setSelectedSlot(4);
-        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_6)) inventory.setSelectedSlot(5);
-        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_7)) inventory.setSelectedSlot(6);
-        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_8)) inventory.setSelectedSlot(7);
-        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_9)) inventory.setSelectedSlot(8);
+        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_1)) {
+            inventory.setSelectedSlot(0);
+            markDirty(true);
+        }
+        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_2)) {
+            inventory.setSelectedSlot(1);
+            markDirty(true);
+        }
+        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_3)) {
+            inventory.setSelectedSlot(2);
+            markDirty(true);
+        }
+        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_4)) {
+            inventory.setSelectedSlot(3);
+            markDirty(true);
+        }
+        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_5)) {
+            inventory.setSelectedSlot(4);
+            markDirty(true);
+        }
+        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_6)) {
+            inventory.setSelectedSlot(5);
+            markDirty(true);
+        }
+        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_7)) {
+            inventory.setSelectedSlot(6);
+            markDirty(true);
+        }
+        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_8)) {
+            inventory.setSelectedSlot(7);
+            markDirty(true);
+        }
+        if (input.isKeyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_9)) {
+            inventory.setSelectedSlot(8);
+            markDirty(true);
+        }
 
         if (input.isMouseButtonPressed(org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
             handleBlockBreak();
@@ -156,6 +193,7 @@ public class Player extends LivingEntity {
                         int stateId = palette.getStateId(block.getDefaultState());
                         world.setBlockState(placePos.x, placePos.y, placePos.z, stateId);
                         selectedStack.remove(1);
+                        markDirty(true);
                     }
                 }
             }
@@ -185,5 +223,34 @@ public class Player extends LivingEntity {
 
     public Inventory getInventory() {
         return inventory;
+    }
+
+    public void loadFromPlayerIndex(com.ksptool.mycraft.world.save.PlayerIndex playerIndex) {
+        if (playerIndex == null) {
+            return;
+        }
+
+        position.set(playerIndex.posX, playerIndex.posY, playerIndex.posZ);
+        camera.setYaw(playerIndex.yaw);
+        camera.setPitch(playerIndex.pitch);
+        setHealth(playerIndex.health);
+        inventory.setSelectedSlot(playerIndex.selectedSlot);
+
+        if (playerIndex.hotbar != null) {
+            com.ksptool.mycraft.item.ItemStack[] hotbar = inventory.getHotbar();
+            for (int i = 0; i < Math.min(playerIndex.hotbar.size(), hotbar.length); i++) {
+                com.ksptool.mycraft.world.save.PlayerIndex.ItemStackData stackData = playerIndex.hotbar.get(i);
+                if (stackData != null && stackData.itemId != null && stackData.count != null) {
+                    com.ksptool.mycraft.item.Item item = com.ksptool.mycraft.item.Item.getItem(stackData.itemId);
+                    if (item != null) {
+                        hotbar[i] = new com.ksptool.mycraft.item.ItemStack(item, stackData.count);
+                    }
+                } else {
+                    hotbar[i] = null;
+                }
+            }
+        }
+
+        updateCamera();
     }
 }

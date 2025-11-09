@@ -1,0 +1,36 @@
+{
+  "uuid": "c9f88aaf-748e-412c-a132-ff690100e8ac",
+  "posX": 9.798809,
+  "posY": 68.0,
+  "posZ": 10.276179,
+  "yaw": 92.099976,
+  "pitch": 63.10004,
+  "health": 20.0,
+  "selectedSlot": 0,
+  "hotbar": [
+    {
+      "itemId": 1,
+      "count": 64
+    },
+    {
+      "itemId": 2,
+      "count": 64
+    },
+    {
+      "itemId": 3,
+      "count": 64
+    },
+    {
+      "itemId": 4,
+      "count": 64
+    },
+    {
+      "itemId": 5,
+      "count": 64
+    },
+    {},
+    {},
+    {},
+    {}
+  ]
+}

@@ -17,10 +17,15 @@ public abstract class Entity {
     protected boolean onGround;
     protected BoundingBox boundingBox;
     protected boolean isDead;
+    protected boolean isDirty = false;
 
     public Entity(World world) {
+        this(world, UUID.randomUUID());
+    }
+
+    public Entity(World world, UUID uniqueId) {
         this.world = Objects.requireNonNull(world);
-        this.uniqueId = UUID.randomUUID();
+        this.uniqueId = uniqueId != null ? uniqueId : UUID.randomUUID();
         this.position = new Vector3f();
         this.velocity = new Vector3f();
         this.onGround = false;
@@ -67,6 +72,22 @@ public abstract class Entity {
 
     public void setDead(boolean dead) {
         this.isDead = dead;
+    }
+
+    public void markDirty(boolean isDirty) {
+        this.isDirty = isDirty;
+        if (isDirty && world != null) {
+            int chunkX = (int) Math.floor(position.x / com.ksptool.mycraft.world.Chunk.CHUNK_SIZE);
+            int chunkZ = (int) Math.floor(position.z / com.ksptool.mycraft.world.Chunk.CHUNK_SIZE);
+            com.ksptool.mycraft.world.Chunk chunk = world.getChunk(chunkX, chunkZ);
+            if (chunk != null) {
+                chunk.markEntitiesDirty(true);
+            }
+        }
+    }
+
+    public boolean isDirty() {
+        return isDirty;
     }
 }
 

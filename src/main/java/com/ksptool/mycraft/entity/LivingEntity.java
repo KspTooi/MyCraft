@@ -20,6 +20,10 @@ public abstract class LivingEntity extends Entity {
         super(world);
     }
 
+    public LivingEntity(World world, java.util.UUID uniqueId) {
+        super(world, uniqueId);
+    }
+
     @Override
     public void update(float delta) {
         handlePhysics(delta);
@@ -71,11 +75,16 @@ public abstract class LivingEntity extends Entity {
             onGround = false;
         }
         
+        Vector3f oldPosition = new Vector3f(position);
         position.set(newPosition);
         if (boundingBox != null) {
             boundingBox.update(position);
         } else {
             boundingBox = new BoundingBox(position, 0.6f, 1.8f);
+        }
+        
+        if (oldPosition.x != position.x || oldPosition.y != position.y || oldPosition.z != position.z) {
+            markDirty(true);
         }
         
         velocity.x *= 0.8f;
@@ -87,7 +96,10 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void setHealth(float health) {
-        this.health = health;
+        if (this.health != health) {
+            this.health = health;
+            markDirty(true);
+        }
     }
 
     public float getEyeHeight() {

@@ -101,6 +101,18 @@ public class GlobalPalette {
         stateToId.clear();
         baked = false;
     }
+    
+    public List<BlockState> getStateList() {
+        return stateList;
+    }
+    
+    public Map<BlockState, Integer> getStateToId() {
+        return stateToId;
+    }
+    
+    public void setBaked(boolean baked) {
+        this.baked = baked;
+    }
 
 }
 

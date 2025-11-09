@@ -30,6 +30,8 @@ public class Chunk {
     private ChunkState state;
     private BoundingBox boundingBox;
     private static final int AIR_STATE_ID = 0;
+    private boolean isDirty = false;
+    private boolean entitiesDirty = false;
 
     public Chunk(int chunkX, int chunkZ) {
         this.chunkX = chunkX;
@@ -49,6 +51,7 @@ public class Chunk {
         if (x >= 0 && x < CHUNK_SIZE && y >= 0 && y < CHUNK_HEIGHT && z >= 0 && z < CHUNK_SIZE) {
             blockStates[x][y][z] = stateId;
             needsUpdate = true;
+            markDirty(true);
         }
     }
 
@@ -361,6 +364,22 @@ public class Chunk {
 
     public BoundingBox getBoundingBox() {
         return boundingBox;
+    }
+
+    public void markDirty(boolean isDirty) {
+        this.isDirty = isDirty;
+    }
+
+    public boolean isDirty() {
+        return isDirty;
+    }
+
+    public void markEntitiesDirty(boolean entitiesDirty) {
+        this.entitiesDirty = entitiesDirty;
+    }
+
+    public boolean areEntitiesDirty() {
+        return entitiesDirty;
     }
 }
 
