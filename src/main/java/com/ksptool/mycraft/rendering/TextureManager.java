@@ -171,7 +171,9 @@ public class TextureManager {
             float u0 = (float) atlasX / ATLAS_SIZE + epsilon;
             float v0 = (float) atlasY / ATLAS_SIZE + epsilon;
             float u1 = (float) (atlasX + texWidth) / ATLAS_SIZE - epsilon;
-            float v1 = (float) (atlasY + TEXTURE_SIZE) / ATLAS_SIZE - epsilon;
+
+            int heightForUV = loadResult.isAnimated ? TEXTURE_SIZE : texHeight;
+            float v1 = (float) (atlasY + heightForUV) / ATLAS_SIZE - epsilon;
 
             logger.info("Loaded texture: " + textureName);
             textureUVMap.put(textureName, new UVCoords(u0, v0, u1, v1, loadResult.isAnimated, loadResult.frameCount, loadResult.frameTime));
@@ -266,11 +268,6 @@ public class TextureManager {
                     frameTime = 1.0f / 20.0f;
                 }
                 logger.debug("Found animation metadata for " + path + ": frames=" + frameCount + ", frametime=" + frameTime);
-            } else if (imgHeight > TEXTURE_SIZE && imgWidth == TEXTURE_SIZE && imgHeight % TEXTURE_SIZE == 0) {
-                isAnimatedTexture = true;
-                frameCount = imgHeight / TEXTURE_SIZE;
-                frameTime = 1.0f / 20.0f;
-                logger.debug("Detected animated texture by size: " + path + ", frames=" + frameCount);
             }
 
             int totalPixels = imgWidth * imgHeight;

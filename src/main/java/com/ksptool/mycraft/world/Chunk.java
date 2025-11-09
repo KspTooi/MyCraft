@@ -482,12 +482,6 @@ public class Chunk {
             return new float[]{0.0f, 0.0f, 1.0f, 1.0f};
         }
         
-        if (uvCoords.isAnimated) {
-            float atlasHeight = (float)textureManager.getAtlasHeight();
-            float frameVHeight = 16.0f / atlasHeight;
-            return new float[]{uvCoords.u0, uvCoords.v0, uvCoords.u1, uvCoords.v0 + frameVHeight};
-        }
-        
         return new float[]{uvCoords.u0, uvCoords.v0, uvCoords.u1, uvCoords.v1};
     }
     
