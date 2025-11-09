@@ -143,9 +143,9 @@ public class ChunkSerializer {
         for (RleEntry entry : rleData) {
             int globalStateId = paletteList.get(entry.localId);
             for (int i = 0; i < entry.count && index < CHUNK_SIZE * CHUNK_HEIGHT * CHUNK_SIZE; i++) {
-                int x = index % CHUNK_SIZE;
+                int z = index % CHUNK_SIZE;
                 int y = (index / CHUNK_SIZE) % CHUNK_HEIGHT;
-                int z = index / (CHUNK_SIZE * CHUNK_HEIGHT);
+                int x = index / (CHUNK_SIZE * CHUNK_HEIGHT);
                 chunk.setBlockState(x, y, z, globalStateId);
                 index++;
             }

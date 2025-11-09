@@ -444,6 +444,9 @@ public class Game {
     }
 
     private void cleanup() {
+        if (world != null) {
+            world.saveAllDirtyData();
+        }
         cleanupWorld();
         if (renderer != null) {
             renderer.cleanup();

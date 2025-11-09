@@ -232,19 +232,24 @@ public class World {
     }
     
     public void generateChunkSynchronously(int chunkX, int chunkZ) {
-        long key = getChunkKey(chunkX, chunkZ);
-        if (chunks.containsKey(key)) {
-            return;
+        // 首先，尝试从内存或磁盘加载区块。getChunk 已经包含了这个逻辑。
+        Chunk chunk = getChunk(chunkX, chunkZ);
+
+        // 如果区块为 null，意味着它在任何地方都不存在，此时才生成新的。
+        if (chunk == null) {
+            long key = getChunkKey(chunkX, chunkZ);
+            chunk = new Chunk(chunkX, chunkZ);
+            generateChunkData(chunk);
+            chunks.put(key, chunk);
         }
-        
-        Chunk chunk = new Chunk(chunkX, chunkZ);
-        generateChunkData(chunk);
-        chunk.setState(Chunk.ChunkState.DATA_LOADED);
-        MeshGenerationResult result = chunk.calculateMeshData(this);
-        if (result != null) {
-            chunk.uploadToGPU(result);
+
+        // 确保区块（无论是新生成的还是从磁盘加载的）准备好进行渲染。
+        if (chunk.getState() == Chunk.ChunkState.DATA_LOADED || chunk.getState() == Chunk.ChunkState.NEW) {
+            MeshGenerationResult result = chunk.calculateMeshData(this);
+            if (result != null) {
+                chunk.uploadToGPU(result);
+            }
         }
-        chunks.put(key, chunk);
     }
     
     public int getHeightAt(int worldX, int worldZ) {
