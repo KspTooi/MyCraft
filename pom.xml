@@ -6,17 +6,20 @@
 
     <groupId>com.ksptool</groupId>
     <artifactId>MyCraft</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1A</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <lwjgl.version>3.3.3</lwjgl.version>
-        <joml.version>1.10.5</joml.version>
+        <lwjgl.version>3.3.6</lwjgl.version>
+        <joml.version>1.10.8</joml.version>
+        <commons-lang3.version>3.19.0</commons-lang3.version>
+        <gson.version>2.13.2</gson.version>
     </properties>
 
     <dependencies>
+
         <!-- LWJGL 3 Core -->
         <dependency>
             <groupId>org.lwjgl</groupId>
@@ -36,6 +39,11 @@
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-stb</artifactId>
+            <version>${lwjgl.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-freetype</artifactId>
             <version>${lwjgl.version}</version>
         </dependency>
 
@@ -64,6 +72,13 @@
             <version>${lwjgl.version}</version>
             <classifier>natives-windows</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-freetype</artifactId>
+            <version>${lwjgl.version}</version>
+            <classifier>natives-windows</classifier>
+        </dependency>
+
 
         <!-- JOML for math -->
         <dependency>
@@ -76,34 +91,23 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-freetype</artifactId>
-            <version>${lwjgl.version}</version>
+            <version>${commons-lang3.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.13.2</version>
-        </dependency>
-
-        <!-- SLF4J API -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
+            <version>${gson.version}</version>
         </dependency>
 
         <!-- Logback Classic (包含slf4j-api) -->
+        <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.12</version>
+            <version>1.5.21</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>
