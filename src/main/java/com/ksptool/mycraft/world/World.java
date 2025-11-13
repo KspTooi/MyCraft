@@ -376,13 +376,14 @@ public class World {
             
             Chunk chunk = ChunkSerializer.deserialize(compressedData, chunkX, chunkZ);
             
-            if (chunk != null) {
-                logger.debug("成功加载区块 [{},{}]", chunkX, chunkZ);
-                if (entityRegionManager != null) {
-                    loadEntitiesForChunk(chunkX, chunkZ);
-                }
-            } else {
+            if (chunk == null) {
                 logger.warn("区块 [{},{}] 反序列化失败", chunkX, chunkZ);
+                return null;
+            }
+            
+            logger.debug("成功加载区块 [{},{}]", chunkX, chunkZ);
+            if (entityRegionManager != null) {
+                loadEntitiesForChunk(chunkX, chunkZ);
             }
             
             return chunk;
@@ -670,9 +671,14 @@ public class World {
         float factor;
         if (t < 0.5f) {
             factor = t / 0.5f;
-        } else {
-            factor = (1.0f - t) / 0.5f;
+            factor = (float) ((1.0f - Math.cos(factor * Math.PI)) * 0.5f);
+            return new Vector3f(
+                midnight.x + (noon.x - midnight.x) * factor,
+                midnight.y + (noon.y - midnight.y) * factor,
+                midnight.z + (noon.z - midnight.z) * factor
+            );
         }
+        factor = (1.0f - t) / 0.5f;
         factor = (float) ((1.0f - Math.cos(factor * Math.PI)) * 0.5f);
         
         return new Vector3f(
@@ -757,11 +763,11 @@ public class World {
                 }
             }
             
-            if (dirtyChunkCount > 0 || dirtyEntityChunkCount > 0) {
-                logger.info("保存完成: 脏区块数={}, 脏实体区块数={}", dirtyChunkCount, dirtyEntityChunkCount);
-            } else {
+            if (dirtyChunkCount == 0 && dirtyEntityChunkCount == 0) {
                 logger.debug("没有需要保存的脏数据");
+                return;
             }
+            logger.info("保存完成: 脏区块数={}, 脏实体区块数={}", dirtyChunkCount, dirtyEntityChunkCount);
         } catch (Exception e) {
             logger.error("保存区块失败", e);
         }

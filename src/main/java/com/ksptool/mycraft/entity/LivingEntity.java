@@ -83,21 +83,21 @@ public abstract class LivingEntity extends Entity {
         if (!world.canMoveTo(testBox)) {
             if (movement.y < 0) {
                 onGround = true;
-                velocity.y = 0;
-            } else {
-                velocity.y = 0;
             }
+            velocity.y = 0;
             newPosition.y = position.y;
-        } else {
+        }
+        
+        if (world.canMoveTo(testBox)) {
             onGround = false;
         }
         
         Vector3f oldPosition = new Vector3f(position);
         position.set(newPosition);
-        if (boundingBox != null) {
-            boundingBox.update(position);
-        } else {
+        if (boundingBox == null) {
             boundingBox = new BoundingBox(position, 0.6f, 1.8f);
+        } else {
+            boundingBox.update(position);
         }
         
         if (oldPosition.x != position.x || oldPosition.y != position.y || oldPosition.z != position.z) {

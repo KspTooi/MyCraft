@@ -122,11 +122,9 @@ public class GuiRenderer {
             return;
         }
 
-        Vector4f backgroundColor;
+        Vector4f backgroundColor = new Vector4f(0.4f, 0.4f, 0.4f, 0.9f);
         if (hovered) {
             backgroundColor = new Vector4f(0.6f, 0.6f, 0.6f, 0.9f);
-        } else {
-            backgroundColor = new Vector4f(0.4f, 0.4f, 0.4f, 0.9f);
         }
 
         renderQuad(x, y, width, height, backgroundColor, windowWidth, windowHeight);

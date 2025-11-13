@@ -20,11 +20,11 @@ public class ItemStack {
     }
 
     public void setCount(int count) {
-        if (item != null) {
-            this.count = Math.min(count, item.getMaxStackSize());
-        } else {
+        if (item == null) {
             this.count = 0;
+            return;
         }
+        this.count = Math.min(count, item.getMaxStackSize());
     }
 
     public void add(int amount) {

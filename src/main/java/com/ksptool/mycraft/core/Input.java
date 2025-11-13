@@ -30,22 +30,28 @@ public class Input {
         this.mouseLocked = false;
 
         glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
-            if (key >= 0 && key < keys.length) {
-                if (action == GLFW_PRESS) {
-                    keys[key] = true;
-                } else if (action == GLFW_RELEASE) {
-                    keys[key] = false;
-                }
+            if (key < 0 || key >= keys.length) {
+                return;
+            }
+            if (action == GLFW_PRESS) {
+                keys[key] = true;
+                return;
+            }
+            if (action == GLFW_RELEASE) {
+                keys[key] = false;
             }
         });
 
         glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> {
-            if (button >= 0 && button < mouseButtons.length) {
-                if (action == GLFW_PRESS) {
-                    mouseButtons[button] = true;
-                } else if (action == GLFW_RELEASE) {
-                    mouseButtons[button] = false;
-                }
+            if (button < 0 || button >= mouseButtons.length) {
+                return;
+            }
+            if (action == GLFW_PRESS) {
+                mouseButtons[button] = true;
+                return;
+            }
+            if (action == GLFW_RELEASE) {
+                mouseButtons[button] = false;
             }
         });
 
@@ -101,16 +107,16 @@ public class Input {
 
     public void setMouseLocked(boolean locked) {
         this.mouseLocked = locked;
-        if (locked) {
-            glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            int[] width = new int[1];
-            int[] height = new int[1];
-            glfwGetWindowSize(windowHandle, width, height);
-            glfwSetCursorPos(windowHandle, width[0] / 2.0, height[0] / 2.0);
-            mousePosition.set(width[0] / 2.0, height[0] / 2.0);
-        } else {
+        if (!locked) {
             glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            return;
         }
+        glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        int[] width = new int[1];
+        int[] height = new int[1];
+        glfwGetWindowSize(windowHandle, width, height);
+        glfwSetCursorPos(windowHandle, width[0] / 2.0, height[0] / 2.0);
+        mousePosition.set(width[0] / 2.0, height[0] / 2.0);
     }
 
     public Vector2d getMousePosition() {

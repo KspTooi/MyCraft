@@ -128,31 +128,32 @@ public class Chunk {
                             addSouthFace(transparentVertices, transparentTexCoords, transparentTints, transparentAnimationData, transparentIndices, worldX, y, worldZ, state, transparentVertexOffset);
                             transparentVertexOffset += 4;
                         }
-                    } else {
-                        if (shouldRenderFace(world, worldX, y, worldZ, 0, -1, 0, block)) {
-                            addBottomFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                            vertexOffset += 4;
-                        }
-                        if (shouldRenderFace(world, worldX, y, worldZ, 0, 1, 0, block)) {
-                            addTopFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                            vertexOffset += 4;
-                        }
-                        if (shouldRenderFace(world, worldX, y, worldZ, -1, 0, 0, block)) {
-                            addWestFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                            vertexOffset += 4;
-                        }
-                        if (shouldRenderFace(world, worldX, y, worldZ, 1, 0, 0, block)) {
-                            addEastFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                            vertexOffset += 4;
-                        }
-                        if (shouldRenderFace(world, worldX, y, worldZ, 0, 0, -1, block)) {
-                            addNorthFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                            vertexOffset += 4;
-                        }
-                        if (shouldRenderFace(world, worldX, y, worldZ, 0, 0, 1, block)) {
-                            addSouthFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                            vertexOffset += 4;
-                        }
+                        continue;
+                    }
+                    
+                    if (shouldRenderFace(world, worldX, y, worldZ, 0, -1, 0, block)) {
+                        addBottomFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
+                        vertexOffset += 4;
+                    }
+                    if (shouldRenderFace(world, worldX, y, worldZ, 0, 1, 0, block)) {
+                        addTopFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
+                        vertexOffset += 4;
+                    }
+                    if (shouldRenderFace(world, worldX, y, worldZ, -1, 0, 0, block)) {
+                        addWestFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
+                        vertexOffset += 4;
+                    }
+                    if (shouldRenderFace(world, worldX, y, worldZ, 1, 0, 0, block)) {
+                        addEastFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
+                        vertexOffset += 4;
+                    }
+                    if (shouldRenderFace(world, worldX, y, worldZ, 0, 0, -1, block)) {
+                        addNorthFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
+                        vertexOffset += 4;
+                    }
+                    if (shouldRenderFace(world, worldX, y, worldZ, 0, 0, 1, block)) {
+                        addSouthFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
+                        vertexOffset += 4;
                     }
                 }
             }
