@@ -1,6 +1,7 @@
 package com.ksptool.mycraft.rendering;
 
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.system.MemoryUtil;
@@ -239,7 +240,7 @@ public class TextRenderer {
     public void setGuiRenderer(GuiRenderer guiRenderer) {
     }
     
-    public void renderText(GuiRenderer guiRenderer, float x, float y, String text, float scale, Vector3f color, int windowWidth, int windowHeight) {
+    public void renderText(GuiRenderer guiRenderer, float x, float y, String text, float scale, Vector4f color, int windowWidth, int windowHeight) {
         if (guiRenderer == null) {
             return;
         }

@@ -6,6 +6,7 @@ import com.ksptool.mycraft.rendering.TextRenderer;
 import com.ksptool.mycraft.world.save.SaveManager;
 import org.apache.commons.lang3.StringUtils;
 import org.joml.Vector2d;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -45,10 +46,11 @@ public class CreateWorldMenu {
 
         TextRenderer textRenderer = guiRenderer.getTextRenderer();
         if (textRenderer != null) {
-            textRenderer.renderText(guiRenderer, inputX, saveInputY - 25.0f, "存档名称:", 1.0f, new Vector3f(1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
+            textRenderer.renderText(guiRenderer, inputX, saveInputY - 25.0f, "存档名称:", 1.0f, new Vector4f(1.0f, 1.0f, 1.0f,1F), windowWidth, windowHeight);
         }
 
         Vector4f saveInputBgColor = new Vector4f(0.3f, 0.3f, 0.3f, 0.9f);
+
         if (isTypingSaveName) {
             saveInputBgColor = new Vector4f(0.4f, 0.4f, 0.4f, 0.9f);
         }
@@ -61,7 +63,7 @@ public class CreateWorldMenu {
             }
             float textX = inputX + 10.0f;
             float textY = saveInputY + 10.0f;
-            Vector3f textColor = saveNameInput.length() > 0 ? new Vector3f(1.0f, 1.0f, 1.0f) : new Vector3f(0.7f, 0.7f, 0.7f);
+            Vector4f textColor = saveNameInput.length() > 0 ? new Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : new Vector4f(0.7f, 0.7f, 0.7f, 1.0f);
             textRenderer.renderText(guiRenderer, textX, textY, saveDisplayText, 1.0f, textColor, windowWidth, windowHeight);
         }
 
@@ -69,7 +71,7 @@ public class CreateWorldMenu {
         renderSaveList(guiRenderer, saves, windowWidth, windowHeight);
 
         if (textRenderer != null) {
-            textRenderer.renderText(guiRenderer, inputX, worldInputY - 25.0f, "世界名称:", 1.0f, new Vector3f(1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
+            textRenderer.renderText(guiRenderer, inputX, worldInputY - 25.0f, "世界名称:", 1.0f, new Vector4f(1.0f, 1.0f, 1.0f,1F), windowWidth, windowHeight);
         }
 
         Vector4f worldInputBgColor = new Vector4f(0.3f, 0.3f, 0.3f, 0.9f);
@@ -85,7 +87,7 @@ public class CreateWorldMenu {
             }
             float textX = inputX + 10.0f;
             float textY = worldInputY + 10.0f;
-            Vector3f textColor = worldNameInput.length() > 0 ? new Vector3f(1.0f, 1.0f, 1.0f) : new Vector3f(0.7f, 0.7f, 0.7f);
+            Vector4f textColor = worldNameInput.length() > 0 ? new Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : new Vector4f(0.7f, 0.7f, 0.7f, 1.0f);
             textRenderer.renderText(guiRenderer, textX, textY, worldDisplayText, 1.0f, textColor, windowWidth, windowHeight);
         }
 
@@ -124,7 +126,7 @@ public class CreateWorldMenu {
 
             TextRenderer textRenderer = guiRenderer.getTextRenderer();
             if (textRenderer != null) {
-                textRenderer.renderText(guiRenderer, listX + 10.0f, currentY + 5.0f, saveName, 1.0f, new Vector3f(1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
+                textRenderer.renderText(guiRenderer, listX + 10.0f, currentY + 5.0f, saveName, 1.0f, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
             }
 
             currentY += SAVE_ITEM_HEIGHT;

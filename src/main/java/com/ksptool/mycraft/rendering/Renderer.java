@@ -12,6 +12,7 @@ public class Renderer {
     private ShaderProgram shader;
     private Matrix4f projectionMatrix;
     private HotbarRenderer hotbarRenderer;
+    private HudRenderer hudRenderer;
     private double startTimeSec;
 
     public void init() {
@@ -19,6 +20,12 @@ public class Renderer {
         projectionMatrix = new Matrix4f();
         hotbarRenderer = new HotbarRenderer();
         startTimeSec = org.lwjgl.glfw.GLFW.glfwGetTime();
+    }
+
+    public void initHud(GuiRenderer guiRenderer, int textureAtlasId) {
+        if (hudRenderer == null) {
+            hudRenderer = new HudRenderer(guiRenderer, textureAtlasId);
+        }
     }
 
     public void resize(int width, int height) {
@@ -75,19 +82,34 @@ public class Renderer {
         world.renderTransparent(shader, player.getCamera());
         GL11.glDisable(GL11.GL_BLEND);
         
+        shader.unbind();
+        
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+        org.lwjgl.opengl.GL30.glBindVertexArray(0);
+        
         int error = GL11.glGetError();
         if (error != 0) {
-            System.err.println("OpenGL error after rendering: " + error);
+            System.err.println("OpenGL error after rendering world: " + error);
         }
 
-        shader.unbind();
-
-        hotbarRenderer.render(player, width, height);
+        if (hudRenderer != null) {
+            hudRenderer.render(player, width, height);
+        } else {
+            hotbarRenderer.render(player, width, height);
+        }
+        
+        error = GL11.glGetError();
+        if (error != 0) {
+            System.err.println("OpenGL error after rendering HUD: " + error);
+        }
     }
 
     public void cleanup() {
         if (shader != null) {
             shader.cleanup();
+        }
+        if (hudRenderer != null) {
+            hudRenderer.cleanup();
         }
         if (hotbarRenderer != null) {
             hotbarRenderer.cleanup();

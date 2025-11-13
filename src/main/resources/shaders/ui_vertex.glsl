@@ -6,11 +6,11 @@ layout (location = 1) in vec2 aTexCoord;
 uniform vec2 screenSize;
 uniform vec2 position;
 uniform vec2 size;
-uniform vec3 color;
+uniform vec4 color;
 uniform vec2 u_TexCoordOffset;
 uniform vec2 u_TexCoordScale;
 
-out vec3 fragColor;
+out vec4 fragColor;
 out vec2 vs_TexCoord;
 
 void main() {

@@ -582,6 +582,10 @@ public class World {
         GL11.glDeleteTextures(textureId);
     }
 
+    public int getTextureId() {
+        return textureId;
+    }
+
     public float getTimeOfDay() {
         return (float) (gameTime % TICKS_PER_DAY) / TICKS_PER_DAY;
     }

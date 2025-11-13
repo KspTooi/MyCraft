@@ -88,7 +88,7 @@ public class GuiRenderer {
         shader.setUniform("screenSize", new Vector2f(windowWidth, windowHeight));
         shader.setUniform("position", new Vector2f(x, y));
         shader.setUniform("size", new Vector2f(width, height));
-        shader.setUniform("color", new Vector3f(color.x, color.y, color.z));
+        shader.setUniform("color", color);
         shader.setUniform("u_UseTexture", false);
         shader.setUniform("u_TexCoordOffset", new Vector2f(0.0f, 0.0f));
         shader.setUniform("u_TexCoordScale", new Vector2f(1.0f, 1.0f));
@@ -136,12 +136,12 @@ public class GuiRenderer {
             float textHeight = 16.0f * textScale;
             float textX = x + (width - textWidth) / 2.0f;
             float textY = y + (height - textHeight) / 2.0f;
-            Vector3f textColor = new Vector3f(1.0f, 1.0f, 1.0f);
+            Vector4f textColor = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
             textRenderer.renderText(this, textX, textY, text, textScale, textColor, windowWidth, windowHeight);
         }
     }
 
-    public void renderTexturedQuad(float x, float y, float width, float height, float u0, float v0, float u1, float v1, Vector3f color, int textureId, int windowWidth, int windowHeight) {
+    public void renderTexturedQuad(float x, float y, float width, float height, float u0, float v0, float u1, float v1, Vector4f color, int textureId, int windowWidth, int windowHeight) {
         if (shader == null || vaoId == 0 || vboId == 0) {
             init();
             if (shader == null || vaoId == 0 || vboId == 0) {

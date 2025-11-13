@@ -7,7 +7,7 @@ import com.ksptool.mycraft.world.WorldManager;
 import com.ksptool.mycraft.world.save.SaveManager;
 import org.apache.commons.lang3.StringUtils;
 import org.joml.Vector2d;
-import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.List;
 
@@ -60,7 +60,7 @@ public class SingleplayerMenu {
             if (textRenderer != null) {
                 float centerX = windowWidth / 2.0f;
                 float textX = centerX - textRenderer.getTextWidth("没有已保存的存档", 1.0f) / 2.0f;
-                textRenderer.renderText(guiRenderer, textX, SAVE_LIST_Y + 50.0f, "没有已保存的存档", 1.0f, new Vector3f(1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
+                textRenderer.renderText(guiRenderer, textX, SAVE_LIST_Y + 50.0f, "没有已保存的存档", 1.0f, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
             }
             return;
         }
@@ -87,7 +87,7 @@ public class SingleplayerMenu {
 
             TextRenderer textRenderer = guiRenderer.getTextRenderer();
             if (textRenderer != null) {
-                textRenderer.renderText(guiRenderer, listX + 10.0f, currentY + 5.0f, saveName, 1.0f, new Vector3f(1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
+                textRenderer.renderText(guiRenderer, listX + 10.0f, currentY + 5.0f, saveName, 1.0f, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
             }
 
             currentY += WORLD_ITEM_HEIGHT;
@@ -100,7 +100,7 @@ public class SingleplayerMenu {
             if (textRenderer != null) {
                 float centerX = windowWidth / 2.0f;
                 float textX = centerX - textRenderer.getTextWidth("没有已保存的世界", 1.0f) / 2.0f;
-                textRenderer.renderText(guiRenderer, textX, WORLD_LIST_Y + 50.0f, "没有已保存的世界", 1.0f, new Vector3f(1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
+                textRenderer.renderText(guiRenderer, textX, WORLD_LIST_Y + 50.0f, "没有已保存的世界", 1.0f, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
             }
             return;
         }
@@ -127,7 +127,7 @@ public class SingleplayerMenu {
 
             TextRenderer textRenderer = guiRenderer.getTextRenderer();
             if (textRenderer != null) {
-                textRenderer.renderText(guiRenderer, listX + 10.0f, currentY + 5.0f, worldName, 1.0f, new Vector3f(1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
+                textRenderer.renderText(guiRenderer, listX + 10.0f, currentY + 5.0f, worldName, 1.0f, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f), windowWidth, windowHeight);
             }
 
             currentY += WORLD_ITEM_HEIGHT;

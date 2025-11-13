@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec3 fragColor;
+in vec4 fragColor;
 in vec2 vs_TexCoord;
 
 uniform bool u_UseTexture;
@@ -15,9 +15,9 @@ void main() {
         if (alpha < 0.1) {
             discard;
         }
-        FragColor = vec4(fragColor, alpha);
+        FragColor = vec4(fragColor.rgb, fragColor.a * alpha);
     } else {
-        FragColor = vec4(fragColor, 1.0);
+        FragColor = fragColor;
     }
 }
 

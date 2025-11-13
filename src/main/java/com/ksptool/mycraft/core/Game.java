@@ -279,6 +279,9 @@ public class Game {
     }
 
     private void renderInGame() {
+        if (world != null && renderer != null && guiRenderer != null) {
+            renderer.initHud(guiRenderer, world.getTextureId());
+        }
         renderer.render(world, player, window.getWidth(), window.getHeight());
         window.update();
     }

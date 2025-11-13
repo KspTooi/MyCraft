@@ -13,7 +13,10 @@ public abstract class LivingEntity extends Entity {
 
     protected static final float JUMP_VELOCITY = 8.0f;
     
-    protected float health = 20.0f;
+    protected float health = 40.0f;
+    protected float maxHealth = 40.0f;
+    protected float hunger = 40.0f;
+    protected float maxHunger = 40.0f;
     protected float eyeHeight = 1.6f;
 
     public LivingEntity(World world) {
@@ -108,6 +111,39 @@ public abstract class LivingEntity extends Entity {
 
     public void setEyeHeight(float eyeHeight) {
         this.eyeHeight = eyeHeight;
+    }
+
+    public float getMaxHealth() {
+        return maxHealth;
+    }
+
+    public void setMaxHealth(float maxHealth) {
+        if (this.maxHealth != maxHealth) {
+            this.maxHealth = maxHealth;
+            markDirty(true);
+        }
+    }
+
+    public float getHunger() {
+        return hunger;
+    }
+
+    public void setHunger(float hunger) {
+        if (this.hunger != hunger) {
+            this.hunger = hunger;
+            markDirty(true);
+        }
+    }
+
+    public float getMaxHunger() {
+        return maxHunger;
+    }
+
+    public void setMaxHunger(float maxHunger) {
+        if (this.maxHunger != maxHunger) {
+            this.maxHunger = maxHunger;
+            markDirty(true);
+        }
     }
 }
 

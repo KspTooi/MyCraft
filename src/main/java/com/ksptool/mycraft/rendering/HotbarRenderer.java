@@ -4,7 +4,7 @@ import com.ksptool.mycraft.entity.Player;
 import com.ksptool.mycraft.item.Inventory;
 import com.ksptool.mycraft.item.ItemStack;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -25,12 +25,17 @@ public class HotbarRenderer {
     private ShaderProgram uiShader;
     private int vaoId;
     private int vboId;
+    private ItemRenderer itemRenderer;
     private static final float[] quadVertices = {
         0.0f, 0.0f,
         1.0f, 0.0f,
         1.0f, 1.0f,
         0.0f, 1.0f
     };
+
+    public void setItemRenderer(ItemRenderer itemRenderer) {
+        this.itemRenderer = itemRenderer;
+    }
 
     public void init() {
         uiShader = new ShaderProgram("/shaders/ui_vertex.glsl", "/shaders/ui_fragment.glsl");
@@ -78,23 +83,17 @@ public class HotbarRenderer {
             int x = hotbarX + i * slotSize;
             int y = hotbarY;
 
-            Vector3f color;
+            Vector4f color;
             if (i == inventory.getSelectedSlot()) {
-                color = new Vector3f(1.0f, 1.0f, 1.0f);
+                color = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
             } else {
-                color = new Vector3f(0.5f, 0.5f, 0.5f);
+                color = new Vector4f(0.5f, 0.5f, 0.5f, 1.0f);
             }
 
             renderQuad(x, y, slotSize, slotSize, color, windowWidth, windowHeight);
 
-            Vector3f borderColor = new Vector3f(0.0f, 0.0f, 0.0f);
+            Vector4f borderColor = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
             renderQuadBorder(x, y, slotSize, slotSize, borderColor, windowWidth, windowHeight);
-
-            ItemStack stack = inventory.getHotbar()[i];
-            if (stack != null && !stack.isEmpty()) {
-                Vector3f itemColor = new Vector3f(0.8f, 0.8f, 0.8f);
-                renderQuad(x + 5, y + 5, slotSize - 10, slotSize - 10, itemColor, windowWidth, windowHeight);
-            }
         }
 
         glDisableVertexAttribArray(0);
@@ -102,18 +101,27 @@ public class HotbarRenderer {
 
         uiShader.unbind();
 
+        for (int i = 0; i < hotbarSize; i++) {
+            int x = hotbarX + i * slotSize;
+            int y = hotbarY;
+            ItemStack stack = inventory.getHotbar()[i];
+            if (stack != null && !stack.isEmpty() && itemRenderer != null) {
+                itemRenderer.renderItem(stack.getItem(), x + 5, y + 5, slotSize - 10, windowWidth, windowHeight);
+            }
+        }
+
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
     }
 
-    private void renderQuad(float x, float y, float width, float height, Vector3f color, int windowWidth, int windowHeight) {
+    private void renderQuad(float x, float y, float width, float height, Vector4f color, int windowWidth, int windowHeight) {
         uiShader.setUniform("position", new Vector2f(x, y));
         uiShader.setUniform("size", new Vector2f(width, height));
         uiShader.setUniform("color", color);
         GL11.glDrawArrays(GL11.GL_TRIANGLE_FAN, 0, 4);
     }
 
-    private void renderQuadBorder(float x, float y, float width, float height, Vector3f color, int windowWidth, int windowHeight) {
+    private void renderQuadBorder(float x, float y, float width, float height, Vector4f color, int windowWidth, int windowHeight) {
         float borderWidth = 2.0f;
         
         renderQuad(x, y, width, borderWidth, color, windowWidth, windowHeight);

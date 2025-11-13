@@ -123,6 +123,15 @@ public class ShaderProgram {
         GL20.glUniform3f(location, value.x, value.y, value.z);
     }
 
+    public void setUniform(String name, org.joml.Vector4f value) {
+        int location = GL20.glGetUniformLocation(programId, name);
+        if (location == -1) {
+            System.err.println("WARNING: Uniform '" + name + "' not found in shader!");
+            return;
+        }
+        GL20.glUniform4f(location, value.x, value.y, value.z, value.w);
+    }
+
     public void setUniform(String name, org.joml.Vector2f value) {
         int location = GL20.glGetUniformLocation(programId, name);
         if (location == -1) {
