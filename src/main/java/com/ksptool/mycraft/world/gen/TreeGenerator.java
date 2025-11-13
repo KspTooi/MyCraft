@@ -1,5 +1,6 @@
 package com.ksptool.mycraft.world.gen;
 
+import com.ksptool.mycraft.commons.BlockType;
 import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.BlockState;
 import com.ksptool.mycraft.world.Chunk;
@@ -32,8 +33,8 @@ public class TreeGenerator {
         GlobalPalette palette = context.getGlobalPalette();
         Registry registry = context.getRegistry();
 
-        Block woodBlock = registry.get("mycraft:wood");
-        Block leavesBlock = registry.get("mycraft:leaves");
+        Block woodBlock = registry.get(BlockType.WOOD.getNamespacedId());
+        Block leavesBlock = registry.get(BlockType.LEAVES.getNamespacedId());
 
         if (woodBlock == null || leavesBlock == null) {
             return;

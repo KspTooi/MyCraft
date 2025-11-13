@@ -46,6 +46,7 @@ public abstract class LivingEntity extends Entity {
         handlePhysics(delta);
     }
 
+    
     protected void handlePhysics(float delta) {
         if (delta <= 0) {
             return;
@@ -104,8 +105,16 @@ public abstract class LivingEntity extends Entity {
             markDirty(true);
         }
         
-        velocity.x *= 0.8f;
-        velocity.z *= 0.8f;
+        float groundFriction = 0.6f;
+        float airFriction = 0.91f;
+        
+        if (onGround) {
+            velocity.x *= groundFriction;
+            velocity.z *= groundFriction;
+        } else {
+            velocity.x *= airFriction;
+            velocity.z *= airFriction;
+        }
     }
 
     public void setHealth(float health) {

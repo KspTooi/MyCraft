@@ -1,5 +1,6 @@
 package com.ksptool.mycraft.world.gen.layers;
 
+import com.ksptool.mycraft.commons.BlockType;
 import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.Chunk;
 import com.ksptool.mycraft.world.gen.GenerationContext;
@@ -14,7 +15,7 @@ public class WaterLayer implements ITerrainLayer {
 
     @Override
     public void apply(int[][][] chunkData, int chunkX, int chunkZ, GenerationContext context) {
-        Block waterBlock = context.getRegistry().get("mycraft:water");
+        Block waterBlock = context.getRegistry().get(BlockType.WATER.getNamespacedId());
         if (waterBlock == null) {
             return;
         }

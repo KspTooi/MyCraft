@@ -1,5 +1,6 @@
 package com.ksptool.mycraft.world.gen.layers;
 
+import com.ksptool.mycraft.commons.BlockType;
 import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.BlockState;
 import com.ksptool.mycraft.world.Chunk;
@@ -21,7 +22,7 @@ public class FeatureLayer implements ITerrainLayer {
 
     @Override
     public void apply(int[][][] chunkData, int chunkX, int chunkZ, GenerationContext context) {
-        Block grassBlock = context.getRegistry().get("mycraft:grass_block");
+        Block grassBlock = context.getRegistry().get(BlockType.GRASS_BLOCK.getNamespacedId());
         if (grassBlock == null) {
             return;
         }

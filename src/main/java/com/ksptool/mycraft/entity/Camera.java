@@ -16,10 +16,20 @@ public class Camera {
 
     //俯仰角
     private float pitch;
+    
+    //上一逻辑刻的俯仰角（用于插值）
+    @Getter
+    @Setter
+    private float previousPitch;
 
     //偏航角
     @Setter
     private float yaw;
+    
+    //上一逻辑刻的偏航角（用于插值）
+    @Getter
+    @Setter
+    private float previousYaw;
 
     //翻滚角
     @Setter
@@ -35,6 +45,8 @@ public class Camera {
         this.position = new Vector3f();
         this.viewMatrix = new Matrix4f();
         this.projectionMatrix = new Matrix4f();
+        this.previousYaw = 0.0f;
+        this.previousPitch = 0.0f;
     }
 
     public void update() {
@@ -64,6 +76,38 @@ public class Camera {
         
         Vector3f center = new Vector3f(position).add(forward);
         viewMatrix.lookAt(position, center, finalUp);
+    }
+    
+    public void updateViewMatrixWithInterpolation(Vector3f interpolatedPosition, float interpolatedYaw, float interpolatedPitch, float eyeHeight) {
+        viewMatrix.identity();
+        
+        Vector3f eyePos = new Vector3f(interpolatedPosition);
+        eyePos.y += eyeHeight;
+        
+        float yawRad = (float) Math.toRadians(interpolatedYaw);
+        float pitchRad = (float) Math.toRadians(interpolatedPitch);
+        
+        float cosYaw = (float) Math.cos(yawRad);
+        float sinYaw = (float) Math.sin(yawRad);
+        float cosPitch = (float) Math.cos(pitchRad);
+        float sinPitch = (float) Math.sin(pitchRad);
+        
+        Vector3f forward = new Vector3f(
+            sinYaw * cosPitch,
+            -sinPitch,
+            -cosYaw * cosPitch
+        );
+        
+        Vector3f up = new Vector3f(0, 1, 0);
+        Vector3f right = new Vector3f();
+        forward.cross(up, right);
+        right.normalize();
+        Vector3f finalUp = new Vector3f();
+        right.cross(forward, finalUp);
+        finalUp.normalize();
+        
+        Vector3f center = new Vector3f(eyePos).add(forward);
+        viewMatrix.lookAt(eyePos, center, finalUp);
     }
 
     public void setPosition(Vector3f position) {

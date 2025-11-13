@@ -5,10 +5,14 @@ import com.ksptool.mycraft.world.save.RegionManager;
 import com.ksptool.mycraft.world.save.SaveManager;
 import com.ksptool.mycraft.world.save.WorldIndex;
 import com.ksptool.mycraft.world.save.WorldMetadata;
-import org.apache.commons.lang3.StringUtils;
+import com.ksptool.mycraft.world.WorldTemplate;
+import com.ksptool.mycraft.world.Registry;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 世界保存/加载管理类，负责世界的保存、加载和删除操作
@@ -27,17 +31,17 @@ public class WorldManager {
         return instance;
     }
 
-    public java.util.List<String> getWorldList(String saveName) {
+    public List<String> getWorldList(String saveName) {
         if (StringUtils.isBlank(saveName)) {
-            return new java.util.ArrayList<>();
+            return new ArrayList<>();
         }
 
         WorldIndex index = SaveManager.getInstance().loadWorldIndex(saveName);
         if (index == null || index.worlds == null) {
-            return new java.util.ArrayList<>();
+            return new ArrayList<>();
         }
 
-        java.util.List<String> worldNames = new java.util.ArrayList<>();
+        List<String> worldNames = new ArrayList<>();
         for (WorldMetadata metadata : index.worlds) {
             if (metadata != null && StringUtils.isNotBlank(metadata.name)) {
                 worldNames.add(metadata.name);
@@ -95,6 +99,7 @@ public class WorldManager {
 
         metadata.seed = world.getSeed();
         metadata.worldTime = world.getGameTime();
+        metadata.templateId = world.getTemplate().getTemplateId();
 
         saveManager.saveWorldIndex(saveName, index);
         saveManager.savePalette(saveName, GlobalPalette.getInstance());
@@ -167,7 +172,7 @@ public class WorldManager {
             return null;
         }
 
-        log.debug("找到世界元数据: seed={}, worldTime={}", metadata.seed, metadata.worldTime);
+        log.debug("找到世界元数据: seed={}, worldTime={}, templateId={}", metadata.seed, metadata.worldTime, metadata.templateId);
 
         GlobalPalette palette = GlobalPalette.getInstance();
         if (!palette.isBaked()) {
@@ -179,7 +184,17 @@ public class WorldManager {
             }
         }
         
-        World world = new World();
+        WorldTemplate template = Registry.getWorldTemplate(metadata.templateId);
+        if (template == null) {
+            log.warn("找不到世界模板 '{}', 使用默认模板", metadata.templateId);
+            template = Registry.getDefaultTemplate();
+            if (template == null) {
+                log.error("无法加载世界: 默认模板未找到");
+                return null;
+            }
+        }
+        
+        World world = new World(template);
         world.setWorldName(worldName);
         world.setSeed(metadata.seed);
         world.setGameTime(metadata.worldTime);

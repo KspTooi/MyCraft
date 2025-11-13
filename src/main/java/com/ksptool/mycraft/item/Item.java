@@ -1,6 +1,10 @@
 package com.ksptool.mycraft.item;
 
+import com.ksptool.mycraft.commons.BlockType;
 import lombok.Getter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 物品定义类，定义物品的基本属性
@@ -12,6 +16,21 @@ public class Item {
     private int maxStackSize;
     private String blockNamespacedID;
 
+    private static final Map<Integer, Item> ITEM_REGISTRY = new HashMap<>();
+    private static final int DEFAULT_MAX_STACK_SIZE = 64;
+
+    static {
+        registerItem(1, "Grass Block", BlockType.GRASS_BLOCK.getNamespacedId());
+        registerItem(2, "Dirt", BlockType.DIRT.getNamespacedId());
+        registerItem(3, "Stone", BlockType.STONE.getNamespacedId());
+        registerItem(4, "Wood", BlockType.WOOD.getNamespacedId());
+        registerItem(5, "Leaves", BlockType.LEAVES.getNamespacedId());
+    }
+
+    private static void registerItem(int id, String name, String blockNamespacedID) {
+        ITEM_REGISTRY.put(id, new Item(id, name, DEFAULT_MAX_STACK_SIZE, blockNamespacedID));
+    }
+
     public Item(int id, String name, int maxStackSize, String blockNamespacedID) {
         this.id = id;
         this.name = name;
@@ -20,12 +39,7 @@ public class Item {
     }
 
     public static Item getItem(int id) {
-        if (id == 1) return new Item(1, "Grass Block", 64, "mycraft:grass_block");
-        if (id == 2) return new Item(2, "Dirt", 64, "mycraft:dirt");
-        if (id == 3) return new Item(3, "Stone", 64, "mycraft:stone");
-        if (id == 4) return new Item(4, "Wood", 64, "mycraft:wood");
-        if (id == 5) return new Item(5, "Leaves", 64, "mycraft:leaves");
-        return null;
+        return ITEM_REGISTRY.get(id);
     }
 }
 

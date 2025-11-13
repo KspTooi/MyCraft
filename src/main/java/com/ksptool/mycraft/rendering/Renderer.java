@@ -1,7 +1,6 @@
 package com.ksptool.mycraft.rendering;
 
 import com.ksptool.mycraft.entity.Player;
-import com.ksptool.mycraft.world.World;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,7 +51,7 @@ public class Renderer {
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
     }
 
-    public void render(World world, Player player, int width, int height) {
+    public void render(WorldRenderer worldRenderer, Player player, int width, int height) {
         if (projectionMatrix == null || projectionMatrix.m00() == 0) {
             resize(width, height);
         }
@@ -63,14 +62,22 @@ public class Renderer {
 
         shader.bind();
         
-        player.getCamera().update();
-        player.getCamera().setProjectionMatrix(projectionMatrix);
-        org.joml.Matrix4f viewMatrix = player.getCamera().getViewMatrix();
+        com.ksptool.mycraft.world.World world = player.getWorld();
+        float partialTick = world.getPartialTick();
+        com.ksptool.mycraft.entity.Camera camera = player.getCamera();
         
-        org.joml.Vector3f skyColor = world.getSkyColor();
+        org.joml.Vector3f interpolatedPos = new org.joml.Vector3f(player.getPreviousPosition()).lerp(player.getPosition(), partialTick);
+        float interpolatedYaw = camera.getPreviousYaw() + (camera.getYaw() - camera.getPreviousYaw()) * partialTick;
+        float interpolatedPitch = camera.getPreviousPitch() + (camera.getPitch() - camera.getPreviousPitch()) * partialTick;
+        
+        camera.updateViewMatrixWithInterpolation(interpolatedPos, interpolatedYaw, interpolatedPitch, player.getEyeHeight());
+        camera.setProjectionMatrix(projectionMatrix);
+        org.joml.Matrix4f viewMatrix = camera.getViewMatrix();
+        
+        org.joml.Vector3f skyColor = worldRenderer.getSkyColor();
         GL11.glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.0f);
         
-        org.joml.Vector3f ambientLight = world.getAmbientLightColor();
+        org.joml.Vector3f ambientLight = worldRenderer.getAmbientLightColor();
         shader.setAmbientLight(ambientLight);
         
         shader.setUniform("projection", projectionMatrix);
@@ -89,11 +96,11 @@ public class Renderer {
         }
 
         GL11.glDisable(GL11.GL_BLEND);
-        world.renderOpaque(shader, player.getCamera());
+        worldRenderer.renderOpaque(shader, player.getCamera());
         
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        world.renderTransparent(shader, player.getCamera());
+        worldRenderer.renderTransparent(shader, player.getCamera());
         GL11.glDisable(GL11.GL_BLEND);
         
         shader.unbind();

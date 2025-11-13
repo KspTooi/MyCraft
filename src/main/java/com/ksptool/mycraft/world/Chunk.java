@@ -1,5 +1,6 @@
 package com.ksptool.mycraft.world;
 
+import com.ksptool.mycraft.commons.BlockType;
 import com.ksptool.mycraft.entity.BoundingBox;
 import com.ksptool.mycraft.rendering.Mesh;
 import com.ksptool.mycraft.rendering.TextureManager;
@@ -24,6 +25,33 @@ public class Chunk {
         AWAITING_MESH,
         READY_TO_UPLOAD,
         READY
+    }
+
+    private enum BlockFace {
+        TOP(0, 1, 0, 0, new int[][]{{0, 1, 0}, {1, 1, 0}, {1, 1, 1}, {0, 1, 1}}, new int[]{0, 3, 2, 0, 2, 1}, new int[][]{{0, 1}, {1, 1}, {1, 0}, {0, 0}}),
+        BOTTOM(0, -1, 0, 1, new int[][]{{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}}, new int[]{0, 1, 2, 0, 2, 3}, new int[][]{{0, 0}, {1, 0}, {1, 1}, {0, 1}}),
+        NORTH(0, 0, -1, 2, new int[][]{{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}}, new int[]{0, 3, 2, 0, 2, 1}, new int[][]{{0, 1}, {1, 1}, {1, 0}, {0, 0}}),
+        SOUTH(0, 0, 1, 2, new int[][]{{1, 0, 1}, {0, 0, 1}, {0, 1, 1}, {1, 1, 1}}, new int[]{0, 3, 2, 0, 2, 1}, new int[][]{{0, 1}, {1, 1}, {1, 0}, {0, 0}}),
+        WEST(-1, 0, 0, 2, new int[][]{{0, 0, 1}, {0, 0, 0}, {0, 1, 0}, {0, 1, 1}}, new int[]{0, 3, 2, 0, 2, 1}, new int[][]{{0, 1}, {1, 1}, {1, 0}, {0, 0}}),
+        EAST(1, 0, 0, 2, new int[][]{{1, 0, 0}, {1, 0, 1}, {1, 1, 1}, {1, 1, 0}}, new int[]{0, 3, 2, 0, 2, 1}, new int[][]{{0, 1}, {1, 1}, {1, 0}, {0, 0}});
+
+        public final int dx;
+        public final int dy;
+        public final int dz;
+        public final int textureFace;
+        public final int[][] vertexOffsets;
+        public final int[] indices;
+        public final int[][] texCoordOrder;
+
+        BlockFace(int dx, int dy, int dz, int textureFace, int[][] vertexOffsets, int[] indices, int[][] texCoordOrder) {
+            this.dx = dx;
+            this.dy = dy;
+            this.dz = dz;
+            this.textureFace = textureFace;
+            this.vertexOffsets = vertexOffsets;
+            this.indices = indices;
+            this.texCoordOrder = texCoordOrder;
+        }
     }
 
     private int[][][] blockStates;
@@ -103,57 +131,25 @@ public class Chunk {
                     int worldX = chunkX * CHUNK_SIZE + x;
                     int worldZ = chunkZ * CHUNK_SIZE + z;
 
-                    if (block.isFluid()) {
-                        if (shouldRenderFace(world, worldX, y, worldZ, 0, -1, 0, block)) {
-                            addBottomFace(transparentVertices, transparentTexCoords, transparentTints, transparentAnimationData, transparentIndices, worldX, y, worldZ, state, transparentVertexOffset);
-                            transparentVertexOffset += 4;
+                    boolean isFluid = block.isFluid();
+                    List<Float> targetVertices = isFluid ? transparentVertices : vertices;
+                    List<Float> targetTexCoords = isFluid ? transparentTexCoords : texCoords;
+                    List<Float> targetTints = isFluid ? transparentTints : tints;
+                    List<Float> targetAnimationData = isFluid ? transparentAnimationData : animationData;
+                    List<Integer> targetIndices = isFluid ? transparentIndices : indices;
+                    int currentOffset = isFluid ? transparentVertexOffset : vertexOffset;
+
+                    for (BlockFace face : BlockFace.values()) {
+                        if (shouldRenderFace(world, worldX, y, worldZ, face.dx, face.dy, face.dz, block)) {
+                            addFace(face, targetVertices, targetTexCoords, targetTints, targetAnimationData, targetIndices, worldX, y, worldZ, state, currentOffset);
+                            currentOffset += 4;
                         }
-                        if (shouldRenderFace(world, worldX, y, worldZ, 0, 1, 0, block)) {
-                            addTopFace(transparentVertices, transparentTexCoords, transparentTints, transparentAnimationData, transparentIndices, worldX, y, worldZ, state, transparentVertexOffset);
-                            transparentVertexOffset += 4;
-                        }
-                        if (shouldRenderFace(world, worldX, y, worldZ, -1, 0, 0, block)) {
-                            addWestFace(transparentVertices, transparentTexCoords, transparentTints, transparentAnimationData, transparentIndices, worldX, y, worldZ, state, transparentVertexOffset);
-                            transparentVertexOffset += 4;
-                        }
-                        if (shouldRenderFace(world, worldX, y, worldZ, 1, 0, 0, block)) {
-                            addEastFace(transparentVertices, transparentTexCoords, transparentTints, transparentAnimationData, transparentIndices, worldX, y, worldZ, state, transparentVertexOffset);
-                            transparentVertexOffset += 4;
-                        }
-                        if (shouldRenderFace(world, worldX, y, worldZ, 0, 0, -1, block)) {
-                            addNorthFace(transparentVertices, transparentTexCoords, transparentTints, transparentAnimationData, transparentIndices, worldX, y, worldZ, state, transparentVertexOffset);
-                            transparentVertexOffset += 4;
-                        }
-                        if (shouldRenderFace(world, worldX, y, worldZ, 0, 0, 1, block)) {
-                            addSouthFace(transparentVertices, transparentTexCoords, transparentTints, transparentAnimationData, transparentIndices, worldX, y, worldZ, state, transparentVertexOffset);
-                            transparentVertexOffset += 4;
-                        }
-                        continue;
                     }
-                    
-                    if (shouldRenderFace(world, worldX, y, worldZ, 0, -1, 0, block)) {
-                        addBottomFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                        vertexOffset += 4;
-                    }
-                    if (shouldRenderFace(world, worldX, y, worldZ, 0, 1, 0, block)) {
-                        addTopFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                        vertexOffset += 4;
-                    }
-                    if (shouldRenderFace(world, worldX, y, worldZ, -1, 0, 0, block)) {
-                        addWestFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                        vertexOffset += 4;
-                    }
-                    if (shouldRenderFace(world, worldX, y, worldZ, 1, 0, 0, block)) {
-                        addEastFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                        vertexOffset += 4;
-                    }
-                    if (shouldRenderFace(world, worldX, y, worldZ, 0, 0, -1, block)) {
-                        addNorthFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                        vertexOffset += 4;
-                    }
-                    if (shouldRenderFace(world, worldX, y, worldZ, 0, 0, 1, block)) {
-                        addSouthFace(vertices, texCoords, tints, animationData, indices, worldX, y, worldZ, state, vertexOffset);
-                        vertexOffset += 4;
+
+                    if (isFluid) {
+                        transparentVertexOffset = currentOffset;
+                    } else {
+                        vertexOffset = currentOffset;
                     }
                 }
             }
@@ -245,233 +241,42 @@ public class Chunk {
         return false;
     }
 
-    private void addTopFace(List<Float> vertices, List<Float> texCoords, List<Float> tints, List<Float> animationData, List<Integer> indices, int x, int y, int z, BlockState state, int offset) {
-        float[] tex = getTextureCoords(state, 0);
+    private void addFace(BlockFace face, List<Float> vertices, List<Float> texCoords, List<Float> tints, List<Float> animationData, List<Integer> indices, int x, int y, int z, BlockState state, int offset) {
+        float[] tex = getTextureCoords(state, face.textureFace);
         float u0 = tex[0], v0 = tex[1], u1 = tex[2], v1 = tex[3];
         
-        vertices.add((float) x); vertices.add((float) (y + 1)); vertices.add((float) z);
-        vertices.add((float) (x + 1)); vertices.add((float) (y + 1)); vertices.add((float) z);
-        vertices.add((float) (x + 1)); vertices.add((float) (y + 1)); vertices.add((float) (z + 1));
-        vertices.add((float) x); vertices.add((float) (y + 1)); vertices.add((float) (z + 1));
+        for (int i = 0; i < 4; i++) {
+            int[] vOffset = face.vertexOffsets[i];
+            vertices.add((float) (x + vOffset[0]));
+            vertices.add((float) (y + vOffset[1]));
+            vertices.add((float) (z + vOffset[2]));
+        }
 
-        texCoords.add(u0); texCoords.add(v1);
-        texCoords.add(u1); texCoords.add(v1);
-        texCoords.add(u1); texCoords.add(v0);
-        texCoords.add(u0); texCoords.add(v0);
+        for (int i = 0; i < 4; i++) {
+            int[] texOrder = face.texCoordOrder[i];
+            float u = texOrder[0] == 0 ? u0 : u1;
+            float v = texOrder[1] == 0 ? v0 : v1;
+            texCoords.add(u);
+            texCoords.add(v);
+        }
 
-        float tintValue = getTintValue(state, 0);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
+        float tintValue = getTintValue(state, face.textureFace);
+        for (int i = 0; i < 4; i++) {
+            tints.add(tintValue);
+        }
 
-        float[] animData = getAnimationData(state, 0);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
+        float[] animData = getAnimationData(state, face.textureFace);
+        for (int i = 0; i < 4; i++) {
+            animationData.add(animData[0]);
+            animationData.add(animData[1]);
+            animationData.add(animData[2]);
+        }
 
-        indices.add(offset); indices.add(offset + 3); indices.add(offset + 2);
-        indices.add(offset); indices.add(offset + 2); indices.add(offset + 1);
+        for (int i = 0; i < face.indices.length; i++) {
+            indices.add(offset + face.indices[i]);
+        }
     }
 
-    private void addBottomFace(List<Float> vertices, List<Float> texCoords, List<Float> tints, List<Float> animationData, List<Integer> indices, int x, int y, int z, BlockState state, int offset) {
-        float[] tex = getTextureCoords(state, 1);
-        float u0 = tex[0], v0 = tex[1], u1 = tex[2], v1 = tex[3];
-        
-        vertices.add((float) x); vertices.add((float) y); vertices.add((float) z);
-        vertices.add((float) (x + 1)); vertices.add((float) y); vertices.add((float) z);
-        vertices.add((float) (x + 1)); vertices.add((float) y); vertices.add((float) (z + 1));
-        vertices.add((float) x); vertices.add((float) y); vertices.add((float) (z + 1));
-
-        texCoords.add(u0); texCoords.add(v0);
-        texCoords.add(u1); texCoords.add(v0);
-        texCoords.add(u1); texCoords.add(v1);
-        texCoords.add(u0); texCoords.add(v1);
-
-        float tintValue = getTintValue(state, 1);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
-
-        float[] animData = getAnimationData(state, 1);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-
-        indices.add(offset); indices.add(offset + 1); indices.add(offset + 2);
-        indices.add(offset); indices.add(offset + 2); indices.add(offset + 3);
-    }
-
-    private void addNorthFace(List<Float> vertices, List<Float> texCoords, List<Float> tints, List<Float> animationData, List<Integer> indices, int x, int y, int z, BlockState state, int offset) {
-        float[] tex = getTextureCoords(state, 2);
-        float u0 = tex[0], v0 = tex[1], u1 = tex[2], v1 = tex[3];
-        
-        vertices.add((float) x); vertices.add((float) y); vertices.add((float) z);
-        vertices.add((float) (x + 1)); vertices.add((float) y); vertices.add((float) z);
-        vertices.add((float) (x + 1)); vertices.add((float) (y + 1)); vertices.add((float) z);
-        vertices.add((float) x); vertices.add((float) (y + 1)); vertices.add((float) z);
-
-        texCoords.add(u0); texCoords.add(v1);
-        texCoords.add(u1); texCoords.add(v1);
-        texCoords.add(u1); texCoords.add(v0);
-        texCoords.add(u0); texCoords.add(v0);
-
-        float tintValue = getTintValue(state, 2);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
-
-        float[] animData = getAnimationData(state, 2);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-
-        indices.add(offset); indices.add(offset + 3); indices.add(offset + 2);
-        indices.add(offset); indices.add(offset + 2); indices.add(offset + 1);
-    }
-
-    private void addSouthFace(List<Float> vertices, List<Float> texCoords, List<Float> tints, List<Float> animationData, List<Integer> indices, int x, int y, int z, BlockState state, int offset) {
-        float[] tex = getTextureCoords(state, 2);
-        float u0 = tex[0], v0 = tex[1], u1 = tex[2], v1 = tex[3];
-        
-        vertices.add((float) (x + 1)); vertices.add((float) y); vertices.add((float) (z + 1));
-        vertices.add((float) x); vertices.add((float) y); vertices.add((float) (z + 1));
-        vertices.add((float) x); vertices.add((float) (y + 1)); vertices.add((float) (z + 1));
-        vertices.add((float) (x + 1)); vertices.add((float) (y + 1)); vertices.add((float) (z + 1));
-
-        texCoords.add(u0); texCoords.add(v1);
-        texCoords.add(u1); texCoords.add(v1);
-        texCoords.add(u1); texCoords.add(v0);
-        texCoords.add(u0); texCoords.add(v0);
-
-        float tintValue = getTintValue(state, 2);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
-
-        float[] animData = getAnimationData(state, 2);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-
-        indices.add(offset); indices.add(offset + 3); indices.add(offset + 2);
-        indices.add(offset); indices.add(offset + 2); indices.add(offset + 1);
-    }
-
-    private void addWestFace(List<Float> vertices, List<Float> texCoords, List<Float> tints, List<Float> animationData, List<Integer> indices, int x, int y, int z, BlockState state, int offset) {
-        float[] tex = getTextureCoords(state, 2);
-        float u0 = tex[0], v0 = tex[1], u1 = tex[2], v1 = tex[3];
-        
-        vertices.add((float) x); vertices.add((float) y); vertices.add((float) (z + 1));
-        vertices.add((float) x); vertices.add((float) y); vertices.add((float) z);
-        vertices.add((float) x); vertices.add((float) (y + 1)); vertices.add((float) z);
-        vertices.add((float) x); vertices.add((float) (y + 1)); vertices.add((float) (z + 1));
-
-        texCoords.add(u0); texCoords.add(v1);
-        texCoords.add(u1); texCoords.add(v1);
-        texCoords.add(u1); texCoords.add(v0);
-        texCoords.add(u0); texCoords.add(v0);
-
-        float tintValue = getTintValue(state, 2);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
-
-        float[] animData = getAnimationData(state, 2);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-
-        indices.add(offset); indices.add(offset + 3); indices.add(offset + 2);
-        indices.add(offset); indices.add(offset + 2); indices.add(offset + 1);
-    }
-
-    private void addEastFace(List<Float> vertices, List<Float> texCoords, List<Float> tints, List<Float> animationData, List<Integer> indices, int x, int y, int z, BlockState state, int offset) {
-        float[] tex = getTextureCoords(state, 2);
-        float u0 = tex[0], v0 = tex[1], u1 = tex[2], v1 = tex[3];
-        
-        vertices.add((float) (x + 1)); vertices.add((float) y); vertices.add((float) z);
-        vertices.add((float) (x + 1)); vertices.add((float) y); vertices.add((float) (z + 1));
-        vertices.add((float) (x + 1)); vertices.add((float) (y + 1)); vertices.add((float) (z + 1));
-        vertices.add((float) (x + 1)); vertices.add((float) (y + 1)); vertices.add((float) z);
-
-        texCoords.add(u0); texCoords.add(v1);
-        texCoords.add(u1); texCoords.add(v1);
-        texCoords.add(u1); texCoords.add(v0);
-        texCoords.add(u0); texCoords.add(v0);
-
-        float tintValue = getTintValue(state, 2);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
-        tints.add(tintValue);
-
-        float[] animData = getAnimationData(state, 2);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-        animationData.add(animData[0]);
-        animationData.add(animData[1]);
-        animationData.add(animData[2]);
-
-        indices.add(offset); indices.add(offset + 3); indices.add(offset + 2);
-        indices.add(offset); indices.add(offset + 2); indices.add(offset + 1);
-    }
 
     private float[] getTextureCoords(BlockState state, int face) {
         Block block = state.getBlock();
@@ -514,11 +319,11 @@ public class Chunk {
             return 0.0f;
         }
         
-        if (block.getNamespacedID().equals("mycraft:grass_block") && face == 0) {
+        if (block.getNamespacedID().equals(BlockType.GRASS_BLOCK.getNamespacedId()) && face == 0) {
             return 1.0f;
         }
         
-        if (block.getNamespacedID().equals("mycraft:leaves")) {
+        if (block.getNamespacedID().equals(BlockType.LEAVES.getNamespacedId())) {
             return 1.0f;
         }
         

@@ -2,6 +2,7 @@ package com.ksptool.mycraft.world.blocks;
 
 import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.BlockState;
+import com.ksptool.mycraft.commons.BlockType;
 import com.ksptool.mycraft.world.properties.EnumProperty;
 
 /**
@@ -15,7 +16,7 @@ public class WoodBlock extends Block {
     }
 
     public WoodBlock() {
-        super("mycraft:wood", 2.0f, 0);
+        super(BlockType.WOOD.getNamespacedId(), 2.0f, 0);
     }
 
     @Override

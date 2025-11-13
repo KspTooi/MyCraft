@@ -2,6 +2,7 @@ package com.ksptool.mycraft.world.blocks;
 
 import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.BlockState;
+import com.ksptool.mycraft.commons.BlockType;
 
 /**
  * 空气方块类，表示空方块
@@ -9,7 +10,7 @@ import com.ksptool.mycraft.world.BlockState;
 public class AirBlock extends Block {
 
     public AirBlock() {
-        super("mycraft:air", 0, 0);
+        super(BlockType.AIR.getNamespacedId(), 0, 0);
     }
 
     @Override

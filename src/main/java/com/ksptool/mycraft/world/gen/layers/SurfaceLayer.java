@@ -1,5 +1,6 @@
 package com.ksptool.mycraft.world.gen.layers;
 
+import com.ksptool.mycraft.commons.BlockType;
 import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.Chunk;
 import com.ksptool.mycraft.world.gen.GenerationContext;
@@ -13,9 +14,9 @@ public class SurfaceLayer implements ITerrainLayer {
 
     @Override
     public void apply(int[][][] chunkData, int chunkX, int chunkZ, GenerationContext context) {
-        Block grassBlock = context.getRegistry().get("mycraft:grass_block");
-        Block dirtBlock = context.getRegistry().get("mycraft:dirt");
-        Block stoneBlock = context.getRegistry().get("mycraft:stone");
+        Block grassBlock = context.getRegistry().get(BlockType.GRASS_BLOCK.getNamespacedId());
+        Block dirtBlock = context.getRegistry().get(BlockType.DIRT.getNamespacedId());
+        Block stoneBlock = context.getRegistry().get(BlockType.STONE.getNamespacedId());
         
         if (grassBlock == null || dirtBlock == null || stoneBlock == null) {
             return;

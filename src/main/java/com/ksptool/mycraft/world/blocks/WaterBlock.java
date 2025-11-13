@@ -2,11 +2,12 @@ package com.ksptool.mycraft.world.blocks;
 
 import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.BlockState;
+import com.ksptool.mycraft.commons.BlockType;
 
 public class WaterBlock extends Block {
 
     public WaterBlock() {
-        super("mycraft:water", 0, 0);
+        super(BlockType.WATER.getNamespacedId(), 0, 0);
     }
 
     @Override

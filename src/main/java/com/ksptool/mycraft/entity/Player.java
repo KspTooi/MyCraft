@@ -5,6 +5,7 @@ import com.ksptool.mycraft.item.Inventory;
 import com.ksptool.mycraft.item.Item;
 import com.ksptool.mycraft.item.ItemStack;
 import com.ksptool.mycraft.world.Block;
+import com.ksptool.mycraft.commons.BlockType;
 import com.ksptool.mycraft.world.GlobalPalette;
 import com.ksptool.mycraft.world.Registry;
 import com.ksptool.mycraft.world.Raycast;
@@ -14,6 +15,7 @@ import com.ksptool.mycraft.world.save.ItemStackData;
 import com.ksptool.mycraft.world.save.PlayerIndex;
 import lombok.Getter;
 import org.joml.Vector2d;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.lwjgl.glfw.GLFW;
@@ -29,11 +31,29 @@ public class Player extends LivingEntity {
     //背包
     private final Inventory inventory;
 
-    //移动速度
-    private float speed = 100f;
-
     //鼠标灵敏度
     private float mouseSensitivity = 0.1f;
+    
+    //地面加速度
+    private static final float GROUND_ACCELERATION = 40F;
+    
+    //空中加速度
+    private static final float AIR_ACCELERATION = 5F;
+    
+    //最大移动速度
+    private static final float MAX_SPEED = 40F;
+
+    private static final java.util.Map<Integer, Integer> KEY_TO_SLOT_MAP = java.util.Map.of(
+        GLFW.GLFW_KEY_1, 0,
+        GLFW.GLFW_KEY_2, 1,
+        GLFW.GLFW_KEY_3, 2,
+        GLFW.GLFW_KEY_4, 3,
+        GLFW.GLFW_KEY_5, 4,
+        GLFW.GLFW_KEY_6, 5,
+        GLFW.GLFW_KEY_7, 6,
+        GLFW.GLFW_KEY_8, 7,
+        GLFW.GLFW_KEY_9, 8
+    );
 
     public Player(World world) {
         super(world);
@@ -63,13 +83,12 @@ public class Player extends LivingEntity {
     }
 
     public void update(Input input, float delta) {
-        handleMouse(input);
         handleKeyboard(input, delta);
         super.update(delta);
         updateCamera();
     }
 
-    private void handleMouse(Input input) {
+    public void handleMouseInput(Input input) {
         if (!input.isMouseLocked()) {
             return;
         }
@@ -108,11 +127,17 @@ public class Player extends LivingEntity {
 
         if (moveDirection.length() > 0) {
             moveDirection.normalize();
-            float moveSpeed = speed * Math.min(delta, 0.1f);
-            moveDirection.mul(moveSpeed);
-
-            velocity.x += moveDirection.x;
-            velocity.z += moveDirection.z;
+            
+            float acceleration = onGround ? GROUND_ACCELERATION : AIR_ACCELERATION;
+            velocity.x += moveDirection.x * acceleration * delta;
+            velocity.z += moveDirection.z * acceleration * delta;
+            
+            Vector2f horizontalVelocity = new Vector2f(velocity.x, velocity.z);
+            if (horizontalVelocity.lengthSquared() > MAX_SPEED * MAX_SPEED) {
+                horizontalVelocity.normalize().mul(MAX_SPEED);
+                velocity.x = horizontalVelocity.x;
+                velocity.z = horizontalVelocity.y;
+            }
         }
 
         if (input.isKeyPressed(GLFW.GLFW_KEY_SPACE) && onGround) {
@@ -126,41 +151,11 @@ public class Player extends LivingEntity {
             markDirty(true);
         }
 
-        if (input.isKeyPressed(GLFW.GLFW_KEY_1)) {
-            inventory.setSelectedSlot(0);
-            markDirty(true);
-        }
-        if (input.isKeyPressed(GLFW.GLFW_KEY_2)) {
-            inventory.setSelectedSlot(1);
-            markDirty(true);
-        }
-        if (input.isKeyPressed(GLFW.GLFW_KEY_3)) {
-            inventory.setSelectedSlot(2);
-            markDirty(true);
-        }
-        if (input.isKeyPressed(GLFW.GLFW_KEY_4)) {
-            inventory.setSelectedSlot(3);
-            markDirty(true);
-        }
-        if (input.isKeyPressed(GLFW.GLFW_KEY_5)) {
-            inventory.setSelectedSlot(4);
-            markDirty(true);
-        }
-        if (input.isKeyPressed(GLFW.GLFW_KEY_6)) {
-            inventory.setSelectedSlot(5);
-            markDirty(true);
-        }
-        if (input.isKeyPressed(GLFW.GLFW_KEY_7)) {
-            inventory.setSelectedSlot(6);
-            markDirty(true);
-        }
-        if (input.isKeyPressed(GLFW.GLFW_KEY_8)) {
-            inventory.setSelectedSlot(7);
-            markDirty(true);
-        }
-        if (input.isKeyPressed(GLFW.GLFW_KEY_9)) {
-            inventory.setSelectedSlot(8);
-            markDirty(true);
+        for (java.util.Map.Entry<Integer, Integer> entry : KEY_TO_SLOT_MAP.entrySet()) {
+            if (input.isKeyPressed(entry.getKey())) {
+                inventory.setSelectedSlot(entry.getValue());
+                markDirty(true);
+            }
         }
 
         if (input.isMouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
@@ -179,7 +174,7 @@ public class Player extends LivingEntity {
         if (result.isHit()) {
             GlobalPalette palette = GlobalPalette.getInstance();
             Registry registry = Registry.getInstance();
-            Block airBlock = registry.get("mycraft:air");
+            Block airBlock = registry.get(BlockType.AIR.getNamespacedId());
             int airStateId = palette.getStateId(airBlock.getDefaultState());
             world.setBlockState(result.getBlockPosition().x, result.getBlockPosition().y, result.getBlockPosition().z, airStateId);
         }

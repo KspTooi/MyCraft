@@ -2,6 +2,7 @@ package com.ksptool.mycraft.world.blocks;
 
 import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.BlockState;
+import com.ksptool.mycraft.commons.BlockType;
 import com.ksptool.mycraft.world.properties.BooleanProperty;
 
 /**
@@ -11,7 +12,7 @@ public class GrassBlock extends Block {
     public static final BooleanProperty SNOWY = BooleanProperty.create("snowy");
 
     public GrassBlock() {
-        super("mycraft:grass_block", 0.6f, 0);
+        super(BlockType.GRASS_BLOCK.getNamespacedId(), 0.6f, 0);
     }
 
     @Override

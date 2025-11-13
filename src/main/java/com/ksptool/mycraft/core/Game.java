@@ -1,15 +1,20 @@
 package com.ksptool.mycraft.core;
 
+import com.ksptool.mycraft.commons.GameState;
 import com.ksptool.mycraft.world.World;
 import com.ksptool.mycraft.entity.Player;
 import com.ksptool.mycraft.rendering.Renderer;
 import com.ksptool.mycraft.rendering.GuiRenderer;
+import com.ksptool.mycraft.rendering.WorldRenderer;
 import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.GlobalPalette;
 import com.ksptool.mycraft.gui.MainMenu;
 import com.ksptool.mycraft.gui.SingleplayerMenu;
 import com.ksptool.mycraft.gui.CreateWorldMenu;
+import com.ksptool.mycraft.gui.UiConstants;
 import com.ksptool.mycraft.world.WorldManager;
+import com.ksptool.mycraft.world.WorldTemplate;
+import com.ksptool.mycraft.world.Registry;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -23,6 +28,7 @@ public class Game {
     private Renderer renderer;
     private GuiRenderer guiRenderer;
     private World world;
+    private WorldRenderer worldRenderer;
     private Player player;
     private boolean running;
     
@@ -33,6 +39,7 @@ public class Game {
     private CreateWorldMenu createWorldMenu;
 
     public void init() {
+        registerDefaultWorldTemplate();
         Block.registerBlocks();
         GlobalPalette.getInstance().bake();
         
@@ -53,6 +60,15 @@ public class Game {
         createWorldMenu = new CreateWorldMenu();
 
         running = true;
+    }
+
+    private void registerDefaultWorldTemplate() {
+        WorldTemplate overworldTemplate = WorldTemplate.builder()
+            .templateId("mycraft:overworld")
+            .ticksPerSecond(20)
+            .gravity(-9.8f)
+            .build();
+        Registry.registerWorldTemplate(overworldTemplate);
     }
 
     public void run() {
@@ -76,6 +92,8 @@ public class Game {
                 deltaSeconds = 0.1;
             }
 
+            input.update();
+
             update((float) deltaSeconds);
             updates++;
 
@@ -91,7 +109,6 @@ public class Game {
     }
 
     private void update(float delta) {
-        input.update();
 
         if (currentState == GameState.MAIN_MENU) {
             updateMainMenu();
@@ -169,21 +186,13 @@ public class Game {
             return;
         }
 
-        long entityUpdateStart = System.nanoTime();
-        for (com.ksptool.mycraft.entity.Entity entity : world.getEntities()) {
-            if (entity instanceof Player) {
-                continue;
-            }
-            entity.update(delta);
-        }
-        long entityUpdateTime = System.nanoTime() - entityUpdateStart;
-        
-        long playerUpdateStart = System.nanoTime();
-        player.update(input, delta);
-        long playerUpdateTime = System.nanoTime() - playerUpdateStart;
+        player.handleMouseInput(input);
         
         long worldUpdateStart = System.nanoTime();
-        world.update(player.getPosition());
+        float tickDelta = 1.0f / world.getTemplate().getTicksPerSecond();
+        world.update(delta, player.getPosition(), () -> {
+            player.update(input, tickDelta);
+        });
         long worldUpdateTime = System.nanoTime() - worldUpdateStart;
         
         long meshUploadStart = System.nanoTime();
@@ -281,29 +290,34 @@ public class Game {
     }
 
     private void renderInGame() {
-        if (world != null && renderer != null && guiRenderer != null) {
-            renderer.initHud(guiRenderer, world.getTextureId());
+        if (worldRenderer != null && renderer != null && guiRenderer != null) {
+            renderer.initHud(guiRenderer, worldRenderer.getTextureId());
         }
-        renderer.render(world, player, window.getWidth(), window.getHeight());
+        if (worldRenderer != null) {
+            renderer.render(worldRenderer, player, window.getWidth(), window.getHeight());
+        }
         window.update();
     }
 
     private void renderPausedMenu() {
-        org.joml.Vector4f overlay = new org.joml.Vector4f(0.0f, 0.0f, 0.0f, 0.5f);
+        org.joml.Vector4f overlay = new org.joml.Vector4f(0.0f, 0.0f, 0.0f, UiConstants.PAUSED_MENU_OVERLAY_ALPHA);
         guiRenderer.renderQuad(0, 0, window.getWidth(), window.getHeight(), overlay, window.getWidth(), window.getHeight());
         
         float centerX = window.getWidth() / 2.0f;
         float centerY = window.getHeight() / 2.0f;
-        float buttonWidth = 200.0f;
-        float buttonHeight = 40.0f;
+        float buttonWidth = UiConstants.PAUSED_MENU_BUTTON_WIDTH;
+        float buttonHeight = UiConstants.PAUSED_MENU_BUTTON_HEIGHT;
         float buttonX = centerX - buttonWidth / 2.0f;
+        float buttonSpacing = UiConstants.PAUSED_MENU_BUTTON_SPACING;
         
         org.joml.Vector2d mousePos = input.getMousePosition();
-        boolean resumeHovered = isMouseOverButton(mousePos.x, mousePos.y, buttonX, centerY - 30.0f, buttonWidth, buttonHeight);
-        boolean mainMenuHovered = isMouseOverButton(mousePos.x, mousePos.y, buttonX, centerY + 20.0f, buttonWidth, buttonHeight);
+        float resumeButtonY = centerY - buttonSpacing / 2.0f;
+        float mainMenuButtonY = centerY + buttonSpacing / 2.0f;
+        boolean resumeHovered = isMouseOverButton(mousePos.x, mousePos.y, buttonX, resumeButtonY, buttonWidth, buttonHeight);
+        boolean mainMenuHovered = isMouseOverButton(mousePos.x, mousePos.y, buttonX, mainMenuButtonY, buttonWidth, buttonHeight);
         
-        guiRenderer.renderButton(buttonX, centerY - 30.0f, buttonWidth, buttonHeight, "继续游戏", resumeHovered, window.getWidth(), window.getHeight());
-        guiRenderer.renderButton(buttonX, centerY + 20.0f, buttonWidth, buttonHeight, "返回主菜单", mainMenuHovered, window.getWidth(), window.getHeight());
+        guiRenderer.renderButton(buttonX, resumeButtonY, buttonWidth, buttonHeight, "继续游戏", resumeHovered, window.getWidth(), window.getHeight());
+        guiRenderer.renderButton(buttonX, mainMenuButtonY, buttonWidth, buttonHeight, "返回主菜单", mainMenuHovered, window.getWidth(), window.getHeight());
         
         if (input.isMouseButtonPressed(org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
             if (resumeHovered) {
@@ -374,6 +388,9 @@ public class Game {
         
         world = loadedWorld;
         
+        worldRenderer = new WorldRenderer(world);
+        worldRenderer.init();
+        
         float initialX = 8.0f;
         float initialZ = 8.0f;
         
@@ -425,10 +442,18 @@ public class Game {
             }
         }
         
-        world = new World();
+        WorldTemplate template = Registry.getWorldTemplate("mycraft:overworld");
+        if (template == null) {
+            log.error("无法创建世界: 默认模板未找到");
+            return;
+        }
+        world = new World(template);
         world.setWorldName(worldName);
         world.setSeed(System.currentTimeMillis());
         world.init();
+        
+        worldRenderer = new WorldRenderer(world);
+        worldRenderer.init();
         
         WorldManager.getInstance().saveWorld(world, saveName, worldName);
         
@@ -436,6 +461,10 @@ public class Game {
     }
 
     private void cleanupWorld() {
+        if (worldRenderer != null) {
+            worldRenderer.cleanup();
+            worldRenderer = null;
+        }
         if (world != null) {
             if (currentSaveName != null && currentWorldName != null) {
                 WorldManager.getInstance().saveWorld(world, player, currentSaveName, currentWorldName);

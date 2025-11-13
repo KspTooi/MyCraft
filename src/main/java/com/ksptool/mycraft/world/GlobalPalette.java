@@ -1,5 +1,7 @@
 package com.ksptool.mycraft.world;
 
+import com.ksptool.mycraft.commons.BlockType;
+
 import java.util.*;
 
 /**
@@ -36,7 +38,7 @@ public class GlobalPalette {
         Registry registry = Registry.getInstance();
         Map<String, Block> blocks = registry.getAllBlocks();
 
-        Block airBlock = registry.get("mycraft:air");
+        Block airBlock = registry.get(BlockType.AIR.getNamespacedId());
         if (airBlock == null) {
             throw new IllegalStateException("Air block must be registered before baking palette!");
         }

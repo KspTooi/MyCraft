@@ -23,6 +23,9 @@ public abstract class Entity {
 
     //位置
     protected final Vector3f position;
+    
+    //上一逻辑刻的位置（用于插值）
+    protected final Vector3f previousPosition;
 
     //速度
     protected final Vector3f velocity;
@@ -50,6 +53,7 @@ public abstract class Entity {
         this.world = Objects.requireNonNull(world);
         this.uniqueId = uniqueId != null ? uniqueId : UUID.randomUUID();
         this.position = new Vector3f();
+        this.previousPosition = new Vector3f();
         this.velocity = new Vector3f();
         this.onGround = false;
         this.isDead = false;

@@ -1,4 +1,4 @@
-package com.ksptool.mycraft.core;
+package com.ksptool.mycraft.commons;
 
 /**
  * 游戏状态枚举，定义游戏的不同状态

@@ -99,12 +99,6 @@ public abstract class Block {
 
     public static void registerBlocks() {
         Registry registry = Registry.getInstance();
-        registry.register(new com.ksptool.mycraft.world.blocks.AirBlock());
-        registry.register(new com.ksptool.mycraft.world.blocks.GrassBlock());
-        registry.register(new com.ksptool.mycraft.world.blocks.DirtBlock());
-        registry.register(new com.ksptool.mycraft.world.blocks.StoneBlock());
-        registry.register(new com.ksptool.mycraft.world.blocks.WoodBlock());
-        registry.register(new com.ksptool.mycraft.world.blocks.LeavesBlock());
-        registry.register(new com.ksptool.mycraft.world.blocks.WaterBlock());
+        com.ksptool.mycraft.commons.BlockType.registerBlocks(registry);
     }
 }

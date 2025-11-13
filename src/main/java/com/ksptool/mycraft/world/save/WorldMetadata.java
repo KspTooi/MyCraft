@@ -7,6 +7,7 @@ public class WorldMetadata {
     public String name;
     public long seed;
     public long worldTime;
+    public String templateId;
 
     public WorldMetadata() {
     }
