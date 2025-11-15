@@ -1,6 +1,7 @@
 package com.ksptool.mycraft.world;
 
-import com.ksptool.mycraft.world.properties.BlockProperty;
+import com.ksptool.mycraft.sharedcore.world.BlockState;
+import com.ksptool.mycraft.sharedcore.world.properties.BlockProperty;
 import lombok.Getter;
 
 import java.util.*;
@@ -99,6 +100,6 @@ public abstract class Block {
 
     public static void registerBlocks() {
         Registry registry = Registry.getInstance();
-        com.ksptool.mycraft.commons.BlockType.registerBlocks(registry);
+        com.ksptool.mycraft.sharedcore.BlockType.registerBlocks(registry);
     }
 }

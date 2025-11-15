@@ -1,9 +1,9 @@
 package com.ksptool.mycraft.world.blocks;
 
 import com.ksptool.mycraft.world.Block;
-import com.ksptool.mycraft.world.BlockState;
-import com.ksptool.mycraft.commons.BlockType;
-import com.ksptool.mycraft.world.properties.EnumProperty;
+import com.ksptool.mycraft.sharedcore.world.BlockState;
+import com.ksptool.mycraft.sharedcore.BlockType;
+import com.ksptool.mycraft.sharedcore.world.properties.EnumProperty;
 
 /**
  * 木头方块类，具有方向轴属性

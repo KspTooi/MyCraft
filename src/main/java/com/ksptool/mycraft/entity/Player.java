@@ -1,11 +1,12 @@
 package com.ksptool.mycraft.entity;
 
-import com.ksptool.mycraft.core.Input;
+import com.ksptool.mycraft.client.Input;
 import com.ksptool.mycraft.item.Inventory;
-import com.ksptool.mycraft.item.Item;
-import com.ksptool.mycraft.item.ItemStack;
+import com.ksptool.mycraft.sharedcore.item.Item;
+import com.ksptool.mycraft.sharedcore.item.ItemStack;
+import com.ksptool.mycraft.sharedcore.BoundingBox;
 import com.ksptool.mycraft.world.Block;
-import com.ksptool.mycraft.commons.BlockType;
+import com.ksptool.mycraft.sharedcore.BlockType;
 import com.ksptool.mycraft.world.GlobalPalette;
 import com.ksptool.mycraft.world.Registry;
 import com.ksptool.mycraft.world.Raycast;

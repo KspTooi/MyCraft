@@ -1,5 +1,6 @@
 package com.ksptool.mycraft.entity;
 
+import com.ksptool.mycraft.sharedcore.BoundingBox;
 import com.ksptool.mycraft.world.Chunk;
 import com.ksptool.mycraft.world.World;
 import lombok.Getter;

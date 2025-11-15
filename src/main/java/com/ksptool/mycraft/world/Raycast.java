@@ -1,7 +1,7 @@
 package com.ksptool.mycraft.world;
 
+import com.ksptool.mycraft.sharedcore.world.BlockState;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
 
 /**
  * 射线检测类，用于检测射线与方块的碰撞

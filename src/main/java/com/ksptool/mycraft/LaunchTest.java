@@ -1,7 +1,7 @@
 package com.ksptool.mycraft;
 
-import com.ksptool.mycraft.rendering.ShaderProgram;
-import com.ksptool.mycraft.rendering.TextureManager;
+import com.ksptool.mycraft.client.rendering.ShaderProgram;
+import com.ksptool.mycraft.client.rendering.TextureManager;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;

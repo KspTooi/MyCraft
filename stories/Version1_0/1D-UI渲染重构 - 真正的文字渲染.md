@@ -12,7 +12,7 @@
 
 第一阶段：升级 GuiRenderer 以支持纹理
 
-    修改 com.ksptool.mycraft.rendering.GuiRenderer.java：
+    修改 com.ksptool.mycraft.client.rendering.GuiRenderer.java：
 
         添加纹理ID字段： private int textureId;（用于存储字体图集的 OpenGL 纹理ID）。
 
@@ -42,7 +42,7 @@
 
 第二阶段：重构 TextRenderer
 
-    修改 com.ksptool.mycraft.rendering.TextRenderer.java：
+    修改 com.ksptool.mycraft.client.rendering.TextRenderer.java：
 
         移除冗余字段： 移除 guiRenderer 字段（如果 GuiRenderer 暴露了静态 render 方法，则不需要）。
 

@@ -120,101 +120,21 @@
 # 研发工程师汇报
 
 查看项目结构，然后按计划开始实施。
-
-
-[6 tools called]
-
-
 开始实施计划。先配置 pom.xml，添加所需依赖。
-
-
-[2 tools called]
-
-
 创建窗口管理和游戏循环类：
-
-
-[4 tools called]
-
-
 创建渲染系统，包括着色器管理：
-
-
-[5 tools called]
-
-
 创建相机和玩家类：
-
-
-[3 tools called]
-
-
 创建方块和区块系统：
-
-
-[4 tools called]
-
-
 创建世界生成系统：
-
-
-[3 tools called]
-
-
 玩家移动和碰撞检测已在 Player 类中实现。实现方块交互（射线投射）：
-
-
-[5 tools called]
-
-
 实现物品系统：
-
-
-[12 tools called]
-
-
 检查编译错误并修复：
-
-
-[1 tool called]
-
-
 这些错误是因为依赖尚未下载，属于正常情况。修复着色器 uniform 问题：
-
-
-[2 tools called]
-
-
 添加 vec3 uniform 支持，并修复 Renderer 中的调用：
-
-
-[4 tools called]
-
-
 重新读取 Camera.java：
-
-
-[1 tool called]
-
-
 Camera.java 文件为空，重新创建：
-
-
-[2 tools called]
-
-
 修复 World 类中的区块更新问题：
-
-
-[2 tools called]
-
-
 所有核心功能已完成。编写 README 说明如何运行项目：
-
-
-[1 tool called]
-
-
 已完成所有计划功能：
 
 ## 已完成的功能
@@ -304,59 +224,14 @@ java -jar target/MyCraft-1.0-SNAPSHOT.jar
 # 研发工程师汇报
 
 开始实施修复计划。先修复投影矩阵初始化问题：
-
-
-[2 tools called]
-
-
 修复投影矩阵初始化，并调整玩家初始位置和视角：
-
-
-[2 tools called]
-
-
 调整相机初始视角：
-
-
-[2 tools called]
-
-
 优化渲染流程，检查并修复 World.render() 中重复设置 model 矩阵的问题：
-
-
-[2 tools called]
-
-
 移除 World.render() 中重复的 model 矩阵设置：
-
-
-[2 tools called]
-
-
 添加调试信息，检查着色器 uniform 和相机状态：
-
-
-[2 tools called]
-
-
 检查 World.render() 中的 textureSampler 设置，并添加调试信息：
-
-
-[5 tools called]
-
-
 修复 Vector2f 的 setUniform 方法：
-
-
-[2 tools called]
-
-
 移除未使用的变量：
-
-
-[2 tools called]
-
-
 修复完成。总结如下：
 
 ## 修复总结
@@ -446,59 +321,14 @@ java -jar target/MyCraft-1.0-SNAPSHOT.jar
 
 # 研发工程师汇报
 开始实施计划。先查看相关代码：
-
-
-[4 tools called]
-
-
 开始实施计划。先实现物理效果：
-
-
-[2 tools called]
-
-
 实现物理效果：添加重力系统。
-
-
-[5 tools called]
-
-
 检查 World.java 的纹理加载方法，准备实现纹理系统：
-
-
-[2 tools called]
-
-
 创建程序生成的 Minecraft 风格纹理图集，并更新加载逻辑：
-
-
-[2 tools called]
-
-
 更新 `getTextureCoords` 方法，使其正确映射到新的纹理图集：
-
-
-[3 tools called]
-
-
 修复未使用的变量警告：
-
-
-[2 tools called]
-
-
 改进碰撞检测逻辑，使其更精确：
-
-
-[1 tool called]
-
-
 检查编译错误：
-
-
-[1 tool called]
-
-
 所有功能已实现。以下是完成的工作总结：
 
 ## 实现总结
@@ -543,23 +373,8 @@ java -jar target/MyCraft-1.0-SNAPSHOT.jar
 
 # 研发工程师汇报
 开始实施修复计划。先查看相关代码：
-
-
-[3 tools called]
-
-
 在 World 类中添加同步生成方法：
-
-
-[3 tools called]
-
-
 在 Game.init() 中预生成关键区块，并根据世界生成算法计算玩家位置的地面高度：
-
-
-[3 tools called]
-
-
 修复已完成。总结如下：
 
 ## 修复总结
@@ -636,17 +451,7 @@ java -jar target/MyCraft-1.0-SNAPSHOT.jar
 
 # 研发工程师汇报
 开始实施修复计划。先检查当前代码：
-
-
-[2 tools called]
-
-
 系统性地重写所有面的生成方法，统一顶点顺序、索引顺序和纹理坐标：
-
-
-[8 tools called]
-
-
 修复完成。总结如下：
 
 ## 修复总结

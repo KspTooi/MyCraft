@@ -1,8 +1,8 @@
 package com.ksptool.mycraft.world.blocks;
 
 import com.ksptool.mycraft.world.Block;
-import com.ksptool.mycraft.world.BlockState;
-import com.ksptool.mycraft.commons.BlockType;
+import com.ksptool.mycraft.sharedcore.world.BlockState;
+import com.ksptool.mycraft.sharedcore.BlockType;
 
 /**
  * 空气方块类，表示空方块

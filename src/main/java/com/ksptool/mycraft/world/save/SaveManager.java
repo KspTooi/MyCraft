@@ -2,6 +2,9 @@ package com.ksptool.mycraft.world.save;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.ksptool.mycraft.sharedcore.item.ItemStack;
+import com.ksptool.mycraft.sharedcore.world.BlockState;
+import com.ksptool.mycraft.sharedcore.world.properties.BlockProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,8 +172,8 @@ public class SaveManager {
         playerIndex.health = player.getHealth();
         playerIndex.selectedSlot = player.getInventory().getSelectedSlot();
 
-        com.ksptool.mycraft.item.ItemStack[] hotbar = player.getInventory().getHotbar();
-        for (com.ksptool.mycraft.item.ItemStack stack : hotbar) {
+        ItemStack[] hotbar = player.getInventory().getHotbar();
+        for (ItemStack stack : hotbar) {
             if (stack != null && !stack.isEmpty()) {
                 ItemStackData stackData = new ItemStackData(
                     stack.getItem() != null ? stack.getItem().getId() : null,
@@ -300,12 +303,12 @@ public class SaveManager {
         com.ksptool.mycraft.world.save.PaletteIndex paletteIndex = new com.ksptool.mycraft.world.save.PaletteIndex();
         
         for (int i = 0; i < palette.getStateCount(); i++) {
-            com.ksptool.mycraft.world.BlockState state = palette.getState(i);
+            BlockState state = palette.getState(i);
             com.ksptool.mycraft.world.save.BlockStateData stateData = new com.ksptool.mycraft.world.save.BlockStateData();
             stateData.blockId = state.getBlock().getNamespacedID();
             
             java.util.Map<String, String> propsMap = new java.util.HashMap<>();
-            for (java.util.Map.Entry<com.ksptool.mycraft.world.properties.BlockProperty<?>, Comparable<?>> entry : state.getProperties().entrySet()) {
+            for (java.util.Map.Entry<BlockProperty<?>, Comparable<?>> entry : state.getProperties().entrySet()) {
                 propsMap.put(entry.getKey().getName(), entry.getValue().toString());
             }
             stateData.properties = propsMap;
@@ -355,13 +358,13 @@ public class SaveManager {
                     continue;
                 }
                 
-                java.util.Map<com.ksptool.mycraft.world.properties.BlockProperty<?>, Comparable<?>> properties = new java.util.HashMap<>();
+                java.util.Map<BlockProperty<?>, Comparable<?>> properties = new java.util.HashMap<>();
                 if (stateData.properties != null) {
                     for (java.util.Map.Entry<String, String> propEntry : stateData.properties.entrySet()) {
                         String propName = propEntry.getKey();
                         String propValueStr = propEntry.getValue();
                         
-                        for (com.ksptool.mycraft.world.properties.BlockProperty<?> property : block.getProperties()) {
+                        for (BlockProperty<?> property : block.getProperties()) {
                             if (property.getName().equals(propName)) {
                                 Comparable<?> value = parsePropertyValue(property, propValueStr);
                                 if (value != null) {
@@ -373,7 +376,7 @@ public class SaveManager {
                     }
                 }
                 
-                com.ksptool.mycraft.world.BlockState state = new com.ksptool.mycraft.world.BlockState(block, properties);
+                BlockState state = new BlockState(block, properties);
                 palette.getStateList().add(state);
                 palette.getStateToId().put(state, palette.getStateList().size() - 1);
             }
@@ -388,7 +391,7 @@ public class SaveManager {
     }
     
     @SuppressWarnings("unchecked")
-    private Comparable<?> parsePropertyValue(com.ksptool.mycraft.world.properties.BlockProperty<?> property, String valueStr) {
+    private Comparable<?> parsePropertyValue(BlockProperty<?> property, String valueStr) {
         java.util.Collection<?> allowedValues = property.getAllowedValues();
         if (allowedValues.isEmpty()) {
             return null;

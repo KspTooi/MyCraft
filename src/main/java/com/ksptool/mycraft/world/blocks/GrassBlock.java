@@ -1,9 +1,9 @@
 package com.ksptool.mycraft.world.blocks;
 
 import com.ksptool.mycraft.world.Block;
-import com.ksptool.mycraft.world.BlockState;
-import com.ksptool.mycraft.commons.BlockType;
-import com.ksptool.mycraft.world.properties.BooleanProperty;
+import com.ksptool.mycraft.sharedcore.world.BlockState;
+import com.ksptool.mycraft.sharedcore.BlockType;
+import com.ksptool.mycraft.sharedcore.world.properties.BooleanProperty;
 
 /**
  * 草方块类，具有雪化属性

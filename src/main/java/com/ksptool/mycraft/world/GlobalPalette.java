@@ -1,6 +1,7 @@
 package com.ksptool.mycraft.world;
 
-import com.ksptool.mycraft.commons.BlockType;
+import com.ksptool.mycraft.sharedcore.BlockType;
+import com.ksptool.mycraft.sharedcore.world.BlockState;
 
 import java.util.*;
 

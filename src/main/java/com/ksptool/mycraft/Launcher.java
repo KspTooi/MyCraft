@@ -1,6 +1,6 @@
 package com.ksptool.mycraft;
 
-import com.ksptool.mycraft.core.Game;
+import com.ksptool.mycraft.client.Game;
 
 /**
  * 程序入口类，负责启动游戏

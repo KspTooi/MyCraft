@@ -1,5 +1,7 @@
 package com.ksptool.mycraft.item;
 
+import com.ksptool.mycraft.sharedcore.item.Item;
+import com.ksptool.mycraft.sharedcore.item.ItemStack;
 import lombok.Getter;
 
 /**
@@ -8,11 +10,13 @@ import lombok.Getter;
 @Getter
 public class Inventory {
 
+    
     private static final int HOTBAR_SIZE = 9;
 
     private ItemStack[] hotbar;
 
     private int selectedSlot;
+
 
     public Inventory() {
         this.hotbar = new ItemStack[HOTBAR_SIZE];

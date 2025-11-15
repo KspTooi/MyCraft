@@ -1,9 +1,10 @@
 package com.ksptool.mycraft.world;
 
-import com.ksptool.mycraft.commons.BlockType;
-import com.ksptool.mycraft.entity.BoundingBox;
-import com.ksptool.mycraft.rendering.Mesh;
-import com.ksptool.mycraft.rendering.TextureManager;
+import com.ksptool.mycraft.sharedcore.BlockType;
+import com.ksptool.mycraft.sharedcore.BoundingBox;
+import com.ksptool.mycraft.client.rendering.Mesh;
+import com.ksptool.mycraft.client.rendering.TextureManager;
+import com.ksptool.mycraft.sharedcore.world.BlockState;
 
 import java.util.ArrayList;
 import java.util.List;

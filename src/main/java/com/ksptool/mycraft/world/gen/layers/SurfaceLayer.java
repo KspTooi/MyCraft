@@ -1,6 +1,6 @@
 package com.ksptool.mycraft.world.gen.layers;
 
-import com.ksptool.mycraft.commons.BlockType;
+import com.ksptool.mycraft.sharedcore.BlockType;
 import com.ksptool.mycraft.world.Block;
 import com.ksptool.mycraft.world.Chunk;
 import com.ksptool.mycraft.world.gen.GenerationContext;

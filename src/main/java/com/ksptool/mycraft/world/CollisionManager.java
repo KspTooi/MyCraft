@@ -1,6 +1,7 @@
 package com.ksptool.mycraft.world;
 
-import com.ksptool.mycraft.entity.BoundingBox;
+import com.ksptool.mycraft.sharedcore.BoundingBox;
+import com.ksptool.mycraft.sharedcore.world.BlockState;
 import org.joml.Vector3f;
 
 /**

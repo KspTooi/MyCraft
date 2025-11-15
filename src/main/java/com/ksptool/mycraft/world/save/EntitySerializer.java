@@ -3,8 +3,8 @@ package com.ksptool.mycraft.world.save;
 import com.ksptool.mycraft.entity.Entity;
 import com.ksptool.mycraft.entity.LivingEntity;
 import com.ksptool.mycraft.entity.Player;
-import com.ksptool.mycraft.item.Item;
-import com.ksptool.mycraft.item.ItemStack;
+import com.ksptool.mycraft.sharedcore.item.Item;
+import com.ksptool.mycraft.sharedcore.item.ItemStack;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -120,7 +120,7 @@ public class EntitySerializer {
             kvMap.put("player:pitch", player.getCamera().getPitch());
             kvMap.put("player:selectedSlot", player.getInventory().getSelectedSlot());
             
-            com.ksptool.mycraft.item.ItemStack[] hotbar = player.getInventory().getHotbar();
+            ItemStack[] hotbar = player.getInventory().getHotbar();
             for (int i = 0; i < hotbar.length; i++) {
                 if (hotbar[i] != null && !hotbar[i].isEmpty()) {
                     kvMap.put("player:hotbar." + i + ".itemId", hotbar[i].getItem().getId());
@@ -218,7 +218,7 @@ public class EntitySerializer {
                 player.getInventory().setSelectedSlot(selectedSlot);
             }
             
-            com.ksptool.mycraft.item.ItemStack[] hotbar = player.getInventory().getHotbar();
+            ItemStack[] hotbar = player.getInventory().getHotbar();
             for (int i = 0; i < hotbar.length; i++) {
                 Integer itemId = getInt(kvMap, "player:hotbar." + i + ".itemId");
                 Integer count = getInt(kvMap, "player:hotbar." + i + ".count");

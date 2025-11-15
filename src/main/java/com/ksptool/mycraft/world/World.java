@@ -1,6 +1,6 @@
 package com.ksptool.mycraft.world;
 
-import com.ksptool.mycraft.entity.BoundingBox;
+import com.ksptool.mycraft.sharedcore.BoundingBox;
 import com.ksptool.mycraft.entity.Entity;
 import com.ksptool.mycraft.world.save.RegionManager;
 import com.ksptool.mycraft.world.gen.GenerationContext;
