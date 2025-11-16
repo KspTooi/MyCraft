@@ -8,7 +8,7 @@
 
 执行计划
 
-修改 com.ksptool.mycraft.world.World.java：
+修改 com.ksptool.ourcraft.world.World.java：
 
     添加新的成员变量：
 

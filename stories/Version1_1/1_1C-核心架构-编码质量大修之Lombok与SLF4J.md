@@ -30,7 +30,7 @@
 | `item/Item.java` | `@Getter`, `@AllArgsConstructor` | 纯数据类，可以安全地用注解替换样板代码。 |
 | `item/ItemStack.java` | `@Getter` (类级别) | - `getItem()` 和 `getCount()` 是标准 getter。 <br> - `setCount`, `add`, `remove` 包含重要的业务逻辑，**必须手动保留**。 |
 | `world/Block.java` | `@Getter` (类级别) | 所有的 getter 都是标准的，可以安全注解。 |
-| `world/BlockState.java` | `@Getter` (仅 `block` 字段) | - `getBlock()` 是标准 getter。 <br> - `get()` 方法包含复杂的泛型和逻辑，**必须手动保留**。 |
+| `world/BlockState.java` | `@Getter` (仅 `sharedBlock` 字段) | - `getBlock()` 是标准 getter。 <br> - `get()` 方法包含复杂的泛型和逻辑，**必须手动保留**。 |
 | `core/Window.java` | `@Getter` (除 `resized` 外的字段) | - 大部分 getter 是标准的。 <br> - `isResized()` 方法包含 `resized = false;` 的副作用，**必须手动保留**，不能用 `@Getter` 替换。 |
 
 ## 第二部分：所有日志必须采用 SLF4J 打印
@@ -179,7 +179,7 @@
     - `Item.java` - `@Getter`
     - `ItemStack.java` - `@Getter`
     - `Block.java` - `@Getter`
-    - `BlockState.java` - `@Getter` (仅 block 字段)
+    - `BlockState.java` - `@Getter` (仅 sharedBlock 字段)
     - `Window.java` - `@Getter` (保留 isResized 方法)
 
 ### 第二部分：SLF4J 日志统一

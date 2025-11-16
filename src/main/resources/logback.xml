@@ -17,8 +17,8 @@
         </encoder>
     </appender>
 
-    <logger name="com.ksptool.mycraft.world" level="DEBUG"/>
-    <logger name="com.ksptool.mycraft.world.save" level="DEBUG"/>
+    <logger name="com.ksptool.ourcraft.world" level="DEBUG"/>
+    <logger name="com.ksptool.ourcraft.world.save" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>

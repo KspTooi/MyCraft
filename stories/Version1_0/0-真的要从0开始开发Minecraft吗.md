@@ -165,7 +165,7 @@ Camera.java 文件为空，重新创建：
 
 ```bash
 mvn clean compile
-mvn exec:java -Dexec.mainClass="com.ksptool.mycraft.Launcher"
+mvn exec:java -Dexec.mainClass="com.ksptool.ourcraft.Launcher"
 ```
 
 或打包成 JAR：
