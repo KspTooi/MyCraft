@@ -26,11 +26,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * 游戏服务端，负责游戏逻辑更新（Tick-based loop）
+ * 服务端运行实例，负责逻辑更新（Tick-based loop）
+ * 负责网络连接、玩家管理、世界管理等
  */
 @Slf4j
 @Getter
-public class GameServer {
+public class OurCraftServerInstance {
+
     private static final int INITIAL_RENDER_DISTANCE = 8;
     private static final int NETWORK_PORT = 25564;
     
@@ -42,7 +44,7 @@ public class GameServer {
     private final CopyOnWriteArrayList<ClientConnectionHandler> connectedClients = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Integer, ClientConnectionHandler> sessionIdToHandler = new ConcurrentHashMap<>();
     
-    public GameServer() {
+    public OurCraftServerInstance() {
         this.running = false;
     }
     
@@ -63,15 +65,14 @@ public class GameServer {
     }
     
     private void processEvents() {
-        // 这个方法现在主要用于单人游戏模式的事件处理
-        // 多人游戏模式下，玩家输入通过网络数据包直接处理
+        // MP模式下，输入事件通过网络数据包直接处理
         java.util.List<GameEvent> events = EventQueue.getInstance().pollAllC2S();
         
         if (!events.isEmpty()) {
             log.debug("GameServer: 处理{}个事件（单人游戏模式）", events.size());
         }
         
-        // 单人游戏模式：处理第一个玩家实体的事件
+        // SP模式下，处理第一个Player实体的事件
         if (!events.isEmpty() && world != null) {
             java.util.List<com.ksptool.ourcraft.server.entity.ServerEntity> entities = world.getEntities();
             ServerPlayer singlePlayer = null;
@@ -153,7 +154,7 @@ public class GameServer {
     }
     
     /**
-     * 当客户端断开连接时调用，移除对应的玩家实体
+     * 当客户端断开连接时调用，移除对应的Player实体
      */
     public void onClientDisconnected(ClientConnectionHandler handler) {
         ServerPlayer player = handler.getPlayer();

@@ -20,7 +20,7 @@ public class Registry {
     private final Map<String, SharedBlock> blocks;
     
     //世界模板列表
-    private static final Map<String, WorldTemplate> worldTemplateRegistry = new HashMap<>();
+    private static final Map<String, WorldTemplateOld> worldTemplateRegistry = new HashMap<>();
 
     private Registry() {
         this.blocks = new HashMap<>();
@@ -50,7 +50,7 @@ public class Registry {
         blocks.clear();
     }
     
-    public static void registerWorldTemplate(WorldTemplate template) {
+    public static void registerWorldTemplate(WorldTemplateOld template) {
         if (template == null || StringUtils.isBlank(template.getTemplateId())) {
             log.warn("尝试注册无效的世界模板");
             return;
@@ -59,12 +59,12 @@ public class Registry {
         log.debug("注册世界模板: {}", template.getTemplateId());
     }
     
-    public static WorldTemplate getWorldTemplate(String templateId) {
+    public static WorldTemplateOld getWorldTemplate(String templateId) {
         return worldTemplateRegistry.get(templateId);
     }
     
-    public static WorldTemplate getDefaultTemplate() {
-        WorldTemplate template = worldTemplateRegistry.get("mycraft:overworld");
+    public static WorldTemplateOld getDefaultTemplate() {
+        WorldTemplateOld template = worldTemplateRegistry.get("mycraft:overworld");
         if (template == null) {
             log.warn("默认世界模板 'mycraft:overworld' 未找到，请确保在游戏启动时注册");
         }
