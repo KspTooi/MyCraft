@@ -138,7 +138,7 @@ public class ClientLauncher {
             }
         }
 
-        WorldTemplateOld template = Registry.getWorldTemplate("mycraft:overworld");
+        WorldTemplateOld template = Registry.getWorldTemplateOld("mycraft:overworld");
         if (template == null) {
             log.error("无法创建世界: 默认模板未找到");
             return;
@@ -231,7 +231,7 @@ public class ClientLauncher {
             }
         }
         
-        WorldTemplateOld template = Registry.getWorldTemplate(metadata.templateId);
+        WorldTemplateOld template = Registry.getWorldTemplateOld(metadata.templateId);
         if (template == null) {
             log.warn("找不到世界模板 '{}', 使用默认模板", metadata.templateId);
             template = Registry.getDefaultTemplate();

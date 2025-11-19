@@ -7,7 +7,7 @@ import com.ksptool.ourcraft.client.entity.ClientPlayer;
 import com.ksptool.ourcraft.client.rendering.Renderer;
 import com.ksptool.ourcraft.client.rendering.GuiRenderer;
 import com.ksptool.ourcraft.client.rendering.WorldRenderer;
-import com.ksptool.ourcraft.sharedcore.block.SharedBlock;
+import com.ksptool.ourcraft.sharedcore.blocks.inner.SharedBlock;
 import com.ksptool.ourcraft.client.gui.MainMenu;
 import com.ksptool.ourcraft.client.gui.SingleplayerMenu;
 import com.ksptool.ourcraft.client.gui.CreateWorldMenu;
@@ -107,7 +107,7 @@ public class GameClient {
             .ticksPerSecond(20)
             .gravity(-9.8f)
             .build();
-        Registry.registerWorldTemplate(overworldTemplateOld);
+        Registry.registerWorldTemplateOld(overworldTemplateOld);
     }
 
     public void run() {
@@ -529,7 +529,7 @@ public class GameClient {
         }
         
         // 获取默认世界模板
-        WorldTemplateOld template = Registry.getWorldTemplate("mycraft:overworld");
+        WorldTemplateOld template = Registry.getWorldTemplateOld("mycraft:overworld");
         if (template == null) {
             log.error("无法初始化多人游戏世界: 默认模板未找到");
             return;
